@@ -21,7 +21,9 @@ export class DashboardComponent {
 
   ngOnInit(): void {
     this.http
-      .get(`http://localhost:8080/user/getcourseusers?cuname=${this.email}`)
+      .get(
+        `http://localhost:8080/course/getcourseusers?courseUserName=${this.email}`
+      )
       .subscribe((result: any) => {
         console.log(result);
         this.course = result.courseslist;

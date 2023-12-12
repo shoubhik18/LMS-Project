@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { User } from '../user';
+import { User, login } from '../user';
 import { HttpClient } from '@angular/common/http';
 import { EmailService } from '../email.service';
 import { AuthService } from '../auth.service';
@@ -14,7 +14,7 @@ import { startWith } from 'rxjs';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  email: string = '';
+  userEmail: string = '';
   password: string = '';
   status: string = '';
   warning: string = '';
@@ -47,43 +47,22 @@ export class LoginComponent {
 
   home() {}
 
-  login(loginData: User) {
-    if (loginData.email.startsWith('@')) {
-      this.status = 'login Failed';
-      this.warning = 'email cannot start with an address';
-    } else {
-      this.auth.Login(loginData);
-      this.auth.status.subscribe((result) => {
-        if (result) {
-          this.status = 'login Failed';
-          this.warning = 'Invalid Details!';
-        } else {
-          this.status = '';
-        }
-      });
-    }
-    // const loginData = { email: this.email, password: this.password };
-    // this.http
-    //   .post('http://localhost:8080/login', loginData, { responseType: 'text' })
-    //   .subscribe((response: string) => {
-    //     if (response === 'login successfully') {
-    //       if (loginData.email.endsWith('@gmail.com')) {
-    //         this.role = 'user';
-    //         console.log(this.role);
-    //         this.router.navigate(['home']);
-    //       } else if (this.email.endsWith('@digital-edify.com')) {
-    //         this.role = 'admin';
-    //         console.log(this.role);
-    //         this.router.navigate(['dashboard']);
-    //       }
-    //     this.capitalizedEmail = this.email.slice(0, 2).toUpperCase();
-    //     // localStorage.setItem('capitalizedEmail', this.capitalizedEmail);
-    //     // console.log(this.capitalizedEmail);
-    //     this.emailService.setEmailData(this.capitalizedEmail);
-    //   } else {
-    //     // window.alert('Invalid details');
-    //     this.status = 'login Failed';
-    //   }
-    // });
+  login(loginData: login) {
+    // if (loginData.userEmail.startsWith('@')) {
+    //   this.status = 'login Failed';
+    //   this.warning = 'email cannot start with an address';
+    // console.log(loginData);
+
+    // } else {
+    this.auth.Login(loginData);
+    this.auth.status.subscribe((result) => {
+      if (result) {
+        this.status = 'login Failed';
+        this.warning = 'Invalid Details!';
+      } else {
+        this.status = '';
+      }
+    });
+    // }
   }
 }

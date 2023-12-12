@@ -34,7 +34,7 @@
         <div class="field">
           <label for="">Profile picture:</label>
 
-          <div class="profile" *ngIf="myProfile">
+          <!-- <div class="profile" *ngIf="myProfile">
             <div class="profile-picture">
               <img class="pp" [src]="emailData" alt="" />
             </div>
@@ -42,6 +42,22 @@
           <div class="profile" *ngIf="!myProfile">
             <div class="profile-picture">
               {{ emailData }}
+            </div>
+          </div> -->
+
+          <div class="profile">
+            <div
+              class="profile-picture"
+              id="dropdownMenuButton"
+              data-mdb-toggle="dropdown"
+            >
+              <img
+                *ngIf="myProfile"
+                class="pp"
+                [src]="image"
+                alt="Profile.jpg"
+              />
+              <div *ngIf="!myProfile">{{ image }}</div>
             </div>
           </div>
 

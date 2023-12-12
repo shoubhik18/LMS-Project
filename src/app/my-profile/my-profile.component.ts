@@ -35,9 +35,9 @@ export class MyProfileComponent {
   ngOnInit(): void {
     if (this.image.length > 3) {
       this.myProfile = true;
-      console.log(this.myProfile);
-      this.image = this.emailData;
-      // console.log(this.image);
+      // console.log(this.myProfile);
+      // this.image = this.emailData;
+      console.log(this.image);
     } else {
       this.myProfile = false;
       console.log(this.myProfile);

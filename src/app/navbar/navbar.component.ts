@@ -16,6 +16,7 @@ export class NavbarComponent {
   falink = faArrowUpRightFromSquare;
   fauser = faCircleUser;
   fasignout = faSignOut;
+
   emailData: string | any = '';
 
   authority: string | any = localStorage.getItem('role');
@@ -47,8 +48,8 @@ export class NavbarComponent {
     // console.log(this.emailData);
     if (this.image.length > 3) {
       this.myProfile = true;
-      console.log(this.myProfile);
-      this.image = this.emailData;
+      // console.log(this.myProfile);
+      // this.image = this.emailData;
       // console.log(this.image);
     } else {
       this.myProfile = false;
