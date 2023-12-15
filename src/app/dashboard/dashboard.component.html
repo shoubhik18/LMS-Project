@@ -22,7 +22,10 @@
           <p>{{ data.coursetrainer }}</p>
         </div>
         <div class="col-sm-3 right">
-          <button class="con" (click)="continue()">
+          <button
+            class="con"
+            (click)="continue(data.coursename, data.coursetrainer)"
+          >
             Continue <fa-icon class="icon" [icon]="right"></fa-icon>
           </button>
           <button class="live">

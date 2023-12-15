@@ -17,6 +17,9 @@ export class DashboardComponent {
   course: any;
   title: string | any = '';
 
+  courseName: any;
+  trainerName: any;
+
   constructor(public router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -25,14 +28,19 @@ export class DashboardComponent {
         `http://localhost:8080/course/getcourseusers?courseUserName=${this.email}`
       )
       .subscribe((result: any) => {
-        console.log(result);
+        // console.log(result);
         this.course = result.courseslist;
-        console.log(this.course);
+        // console.log(this.course);
       });
   }
 
-  continue() {
-    this.router.navigate(['learners']);
+  continue(courseName: string, trainerName: string) {
+    this.router.navigate(['learners'], {
+      queryParams: {
+        courseName: courseName,
+        trainerName: trainerName,
+      },
+    });
   }
 
   // navbar functions

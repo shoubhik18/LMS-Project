@@ -18,13 +18,13 @@
         placeholder="Search Courses"
         (input)="search(searched.value)"
       />
-      <div class="title" *ngFor="let course of searchItems; let i = index">
+      <div class="title" *ngFor="let course of courseData; let i = index">
         <p
           [ngClass]="{ active: i === selectedListItem }"
           (click)="selectListItem(i)"
-          (click)="listItem()"
+          (click)="listItem(course.coursename, course.coursetrainer)"
         >
-          {{ course.title }}
+          {{ course.coursename }}
         </p>
       </div>
     </div>
@@ -48,9 +48,9 @@
         <p [ngStyle]="style('resume')" (click)="active('resume')">Resume</p>
       </div>
       <div class="course px-3" *ngIf="tabStates['courseInfo']">
-        <p><b>Name</b>: Fs - Basic - 2304 7 AM</p>
-        <p><b>Description</b>: Sai Kumar</p>
-        <p><b>Modules</b>: 10</p>
+        <p><b>Name</b>: {{ cname }}</p>
+        <p><b>Description</b>: {{ tname }}</p>
+        <p><b>Modules</b>: {{ moduleLength }}</p>
         <p class="w-75"><b>Live class</b>: NA</p>
         <p class="classlink">
           <input class="col-sm-6" type="text" /><button>

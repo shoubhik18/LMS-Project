@@ -32,6 +32,21 @@ export class AdminPortalComponent {
   user = false;
   email: string = '';
 
+  //course variables
+  courseData: any;
+  cname: string = '';
+  tname: string = '';
+  moduleLength: any;
+
+  ngOnInit() {
+    this.http
+      .get('http://localhost:8080/admin/getallcourses')
+      .subscribe((data) => {
+        this.courseData = data;
+        console.log(this.courseData);
+      });
+  }
+
   list = [
     { title: 'Adv Java -2303 7 AM' },
     { title: 'Adv- Java 2401 9 AM' },
@@ -63,9 +78,20 @@ export class AdminPortalComponent {
     this.isShowAdd = false;
   }
 
-  listItem() {
+  listItem(cname: string, tname: string) {
     this.isShowEdit = true;
     this.courselist = true;
+
+    this.http
+      .get(
+        `http://localhost:8080/course/getcourse?courseName=${cname}&trainerName=${tname}`
+      )
+      .subscribe((data: any) => {
+        this.cname = cname;
+        this.tname = tname;
+
+        console.log('course/', this.cname, '/modules');
+      });
   }
 
   add() {
@@ -129,15 +155,15 @@ export class AdminPortalComponent {
   userFind(user: string) {
     this.find = true;
 
-    this.http
-      .post(' http://localhost:8080/userEmail', user)
-      .subscribe((response: any) => {
-        if (response !== null) {
-          this.table = true;
-          this.userInfo = response;
-        } else {
-          this.table = false;
-        }
-      });
+    // this.http
+    //   .post(' http://localhost:8080/userEmail', user)
+    //   .subscribe((response: any) => {
+    //     if (response !== null) {
+    //       this.table = true;
+    //       this.userInfo = response;
+    //     } else {
+    //       this.table = false;
+    //     }
+    //   });
   }
 }

@@ -1,11 +1,11 @@
 <app-navbar></app-navbar>
 <div class="container-fluid page">
   <div class="row text-center">
-    <h1 class="title">Course title</h1>
+    <h1 class="title">{{ courseTitle }}</h1>
   </div>
   <div class="row video">
     <div class="col-sm-4 left">
-      <div class="row" *ngFor="let module of modules; let i = index">
+      <!-- <div class="row" *ngFor="let module of modules; let i = index">
         <div class="module d-flex flex-row" (click)="expand(i)">
           <div class="d-flex flex-row">
             <p class="index">{{ i + 1 }}</p>
@@ -18,14 +18,37 @@
         <div class="subtopics px-0" *ngIf="modules[i].isShowTopic">
           <div
             class="record d-flex flex-row"
-            *ngFor="let subtopic of subtopics; let j = index"
+            *ngFor="let subtopic of courseList; let j = index"
             (click)="showVideo(subtopic)"
           >
             <p class="inside-index">{{ j + 1 }}</p>
             <p class="inside">{{ subtopic.name }}</p>
           </div>
         </div>
+      </div> -->
+
+      <div class="row" *ngFor="let module of courseList; let i = index">
+        <div class="module d-flex flex-row" (click)="expand(i)">
+          <div class="d-flex flex-row">
+            <p class="index">{{ module.modulenum }}</p>
+            <p>{{ module.name }}</p>
+          </div>
+          <div class="arrow">
+            <fa-icon class="icon" [icon]="darrow"></fa-icon>
+          </div>
+        </div>
+        <div class="subtopics px-0" *ngIf="modules[i].isShowTopic">
+          <div
+            class="record d-flex flex-row"
+            *ngFor="let video of module.videos | keyvalue; let j = index"
+            (click)="showVideo(video.value)"
+          >
+            <p class="inside-index">{{ j + 1 }}</p>
+            <p class="inside">{{ video.key }}</p>
+          </div>
+        </div>
       </div>
+
       <!-- <div class="row ">
         <div class="module d-flex flex-row" (click)="expand()">
           <p class="index">1</p>
@@ -67,6 +90,7 @@
       </div>
     </div>
   </div>
+
   <div class="row below">
     <div class="col-sm-5">
       <div class="row options d-flex flex-row">
@@ -83,9 +107,9 @@
         <p [ngStyle]="style('askAI')" (click)="active('askAI')">Ask AI</p>
       </div>
       <div class="course" *ngIf="tabStates['courseInfo']">
-        <p><b>Name</b>: Fs - Basic - 2304 7 AM</p>
-        <p><b>Description</b>: Sai Kumar</p>
-        <p><b>Modules</b>: 10</p>
+        <p><b>Name</b>: {{ courseTitle }}</p>
+        <p><b>Description</b>: {{ courseTrainer }}</p>
+        <p><b>Modules</b>: {{ moduleLength }}</p>
         <p class="w-75">
           <b>Live class</b>:
           <a

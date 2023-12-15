@@ -35,7 +35,7 @@ export class NavbarComponent {
   ) {
     this.emailData = localStorage.getItem('capitalizedEmail');
     // this.cdr.detectChanges();
-    console.log(this.authority);
+    // console.log(this.authority);
     // if (this.emailData.length == 2) {
     //   this.image = this.emailData;
     // } else {

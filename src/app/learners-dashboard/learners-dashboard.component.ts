@@ -1,5 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,47 +11,76 @@ import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./learners-dashboard.component.css'],
 })
 export class LearnersDashboardComponent {
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(
+    private sanitizer: DomSanitizer,
+    private route: ActivatedRoute,
+    private http: HttpClient
+  ) {}
 
   edit = faEdit;
   darrow = faAngleDown;
   role = localStorage.getItem('role');
-  // isShowTopic = true;
-  modules = [
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-    { name: 'HTML & CSS', isShowTopic: false },
-  ];
+  email = localStorage.getItem('email');
 
-  subtopics = [
-    {
-      name: '19 June 2023',
-      video: 'https://www.youtube.com/embed/qz0aGYrrlhU?si=vRsgyREVzuyaMbGT',
-    },
-    {
-      name: '20 June 2023',
-      video: 'https://www.youtube.com/embed/yfoY53QXEnI?si=x1CrXRbDUBs4ECY8',
-    },
-    {
-      name: '21 June 2023',
-      video: 'https://www.youtube.com/embed/hlGoQC332VM?si=o6uDxO6BS0-41ZvD',
-    },
-    {
-      name: '22 June 2023',
-      video: 'https://www.youtube.com/embed/W6NZfCO5SIk?si=Ho1H-5cfdKm7NSoF',
-    },
-    {
-      name: '23 June 2023',
-      video: 'https://www.youtube.com/embed/0LhBvp8qpro?si=Lfp6lmhtC5hl3C5i',
-    },
-  ];
+  courseTitle: string = '';
+  courseTrainer: string = '';
+
+  courseList: any;
+  modules: any;
+  moduleLength: any;
+
+  // ngOnInit() {
+  //   this.route.queryParams.subscribe((params) => {
+  //     const courseName = params['courseName'];
+  //     const trainerName = params['trainerName'];
+
+  //     this.courseTitle = courseName;
+  //     this.courseTrainer = trainerName;
+
+  //     this.http
+  //       .get(
+  //         // `http://localhost:8080/course/getcourse?courseName=${courseName}&trainerName=${trainerName}`
+  //         `http://localhost:8080/course/getvideos?userEmail=${this.email}&courseName=${courseName}&trainerName=${trainerName}`
+  //       )
+  //       .subscribe((data: any) => {
+  //         // console.log(data);
+  //         this.courseList = data;
+  //       });
+  //   });
+  // }
+
+  ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      const courseName = params['courseName'];
+      const trainerName = params['trainerName'];
+
+      this.courseTitle = courseName;
+      this.courseTrainer = trainerName;
+
+      this.http
+        .get(
+          `http://localhost:8080/course/getvideos?userEmail=${this.email}&courseName=${courseName}&trainerName=${trainerName}`
+        )
+        .subscribe((data: any) => {
+          this.courseList = data;
+
+          // Extract unique modulenum values from courseList
+          const uniqueModuleNums = [
+            ...new Set(
+              data.map((module: { modulenum: any }) => module.modulenum)
+            ),
+          ];
+
+          this.moduleLength = uniqueModuleNums.length;
+
+          // Initialize modules with isShowTopic set to false for each modulenum
+          this.modules = uniqueModuleNums.map((modulenum) => ({
+            name: `Module ${modulenum}`,
+            isShowTopic: false,
+          }));
+        });
+    });
+  }
 
   tabStates: { [key: string]: boolean } = {
     courseInfo: true,
@@ -81,35 +112,21 @@ export class LearnersDashboardComponent {
   selectedTopic: any;
   safeVideoUrl: SafeUrl | undefined;
 
-  showVideo(subtopic: any) {
+  showVideo(video: any) {
+    console.log(video);
+
     this.isShowVideo = true;
-    this.selectedTopic = subtopic;
-    if (this.selectedTopic && this.selectedTopic.video) {
+    if (video) {
       this.safeVideoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        this.selectedTopic.video
+        `https://www.youtube.com/embed/${this.getYouTubeVideoId(video)}`
       );
     }
   }
+
+  private getYouTubeVideoId(url: string): string {
+    const match = url.match(
+      /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/videos\?.+v=))([^"&?\/\s]{11})/
+    );
+    return match ? match[1] : '';
+  }
 }
-
-// getsubtopics(i: number) {
-//   const subtopicsForModule = [];
-
-//   // Ensure that the module index is valid
-//   if (i >= 0 && i < this.modules.length) {
-//     // Iterate over subtopics and add up to 5 subtopics to the array
-//     for (let j = 0; j < this.subtopics.length; j++) {
-//       // Calculate the subtopic index for the current module
-//       const subtopicIndex = i * 5 + j;
-
-//       // Ensure the subtopic index is within the subtopics array
-//       if (subtopicIndex < this.subtopics.length) {
-//         subtopicsForModule.push(this.subtopics[subtopicIndex]);
-//       } else {
-//         break; // Break the loop when there are no more subtopics
-//       }
-//     }
-//   }
-
-//   return subtopicsForModule;
-// }
