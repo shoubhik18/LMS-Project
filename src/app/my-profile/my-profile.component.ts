@@ -12,8 +12,8 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./my-profile.component.css'],
 })
 export class MyProfileComponent {
-  name: string | any = localStorage.getItem('username');
-  email: string | any = localStorage.getItem('email');
+  userName: string | any = localStorage.getItem('username');
+  userEmail: string | any = localStorage.getItem('email');
   tick = faCheckCircle;
   delete = faTrash;
   userId: string | any = localStorage.getItem('userId');
@@ -37,25 +37,26 @@ export class MyProfileComponent {
       this.myProfile = true;
       // console.log(this.myProfile);
       // this.image = this.emailData;
-      console.log(this.image);
+      // console.log(this.image);
     } else {
       this.myProfile = false;
-      console.log(this.myProfile);
+      // console.log(this.myProfile);
       this.image = localStorage.getItem('image');
-      console.log(this.image);
+      // console.log(this.image);
     }
   }
 
   editProfile(data: editUser) {
     console.log(data);
     this.http
-      .put(` http://localhost:8080/user/update?email=${this.email}`, data, {
-        responseType: 'text',
-      })
-      .subscribe((response: string) => {
+      .put(
+        ` http://localhost:8080/user/update?UserEmail=${this.userEmail}`,
+        data
+      )
+      .subscribe((result) => {
         console.log(data);
 
-        if (response === 'User details updated') {
+        if (result) {
           alert('updated successfully');
         } else {
           alert('error');

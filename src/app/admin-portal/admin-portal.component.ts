@@ -5,6 +5,7 @@ import { faVideo } from '@fortawesome/free-solid-svg-icons';
 import { faArchive } from '@fortawesome/free-solid-svg-icons';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { User } from '../user';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-admin-portal',
@@ -23,6 +24,7 @@ export class AdminPortalComponent {
   archive = faArchive;
   info = faCircleInfo;
   edit = faEdit;
+  delete = faTrash;
 
   courselist: boolean = true;
   isShowAdd = false;
@@ -37,39 +39,24 @@ export class AdminPortalComponent {
   cname: string = '';
   tname: string = '';
   moduleLength: any;
+  enrolledUsers: any;
+  newModule: boolean = false;
+  newVideo: boolean = false;
 
   ngOnInit() {
     this.http
       .get('http://localhost:8080/admin/getallcourses')
       .subscribe((data) => {
         this.courseData = data;
-        console.log(this.courseData);
       });
   }
 
-  list = [
-    { title: 'Adv Java -2303 7 AM' },
-    { title: 'Adv- Java 2401 9 AM' },
-    { title: 'Adv-Java-2301-9 AM' },
-    { title: 'Advance Java-2302-12PM' },
-    { title: 'Ansible' },
-    { title: 'Archived' },
-    { title: 'AWS - 2302 - 10AM' },
-    { title: 'AWS - 2304 7:15 AM' },
-    { title: 'AWS - 2305 9 AM' },
-    { title: 'AWS-2301-07 AM' },
-    { title: 'AWS-2405 10:15 AM' },
-    { title: 'Azure Cloud - 2301 10:15 AM' },
-    { title: 'Azure Cloud - 2302 - 7PM' },
-    { title: 'Azure Cloud - 2303 7 PM' },
-  ];
-
-  searchItems = this.list;
+  // searchItems = this.list;
 
   search(search: string) {
-    this.searchItems = this.list.filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase())
-    );
+    // this.searchItems = this.list.filter((item) =>
+    //   item.title.toLowerCase().includes(search.toLowerCase())
+    // );
   }
 
   selectListItem(index: number) {
@@ -86,12 +73,20 @@ export class AdminPortalComponent {
       .get(
         `http://localhost:8080/course/getcourse?courseName=${cname}&trainerName=${tname}`
       )
-      .subscribe((data: any) => {
+      .subscribe((result: any) => {
         this.cname = cname;
         this.tname = tname;
-
-        console.log('course/', this.cname, '/modules');
+        this.enrolledUsers = result;
+        // console.log(this.enrolledUsers);
       });
+  }
+
+  removeUserAccess(email: string, cname: string, tname: string) {
+    // this.http
+    //   .delete(
+    //     `http://localhost:8080/admin/removecourseaccess?userEmail=${email}&courseName=${cname}&trainerName=${tname}`
+    //   )
+    //   .subscribe((data) => {});
   }
 
   add() {
@@ -133,13 +128,23 @@ export class AdminPortalComponent {
   }
 
   createCourse(title: string) {
-    const newCourse = { title };
-    this.list.push(newCourse);
-
-    alert('Course added succesfully');
-
-    this.searchItems = this.list;
+    // const newCourse = { title };
+    // this.list.push(newCourse);
+    // alert('Course added succesfully');
+    // this.searchItems = this.list;
   }
+
+  addModule() {
+    this.newModule = true;
+  }
+
+  addVideo() {
+    this.newVideo = true;
+  }
+
+  deleteModule() {}
+
+  // User functions
 
   users() {
     this.user = true;

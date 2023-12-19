@@ -28,8 +28,8 @@ export interface course {
 }
 
 export interface editUser {
-  email: string;
-  name: string;
+  userEmail: string;
+  userName: string;
   img: Blob;
 }
 

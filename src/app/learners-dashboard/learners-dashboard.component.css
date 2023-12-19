@@ -45,6 +45,7 @@ p {
 .subtopics {
   /* border-bottom: 1px solid #e5e7eb; */
   padding: 0px 0px;
+  background-color: #f8f9fa;
 }
 
 .record {

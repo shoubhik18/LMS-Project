@@ -174,6 +174,10 @@ button {
   font-size: 14px;
 }
 
+.icon {
+  cursor: pointer;
+}
+
 .active {
   color: black;
 }
@@ -197,8 +201,94 @@ button {
   /* margin: 0px !important; */
 }
 
-/* .projects {
-} */
+/* Modules tab css */
+
+.mod-header {
+  align-items: center;
+}
+
+.mod-header h1 {
+  font-size: 24px;
+}
+
+.modulesBox {
+  border: 1px solid black;
+  padding: 12px 18px;
+  padding-top: 0px;
+  margin: 14px 0px;
+}
+
+.moduleData {
+  padding: 12px 18px;
+  align-items: center;
+}
+
+.moduleData h1 {
+  font-size: 18px;
+}
+
+input {
+  border: none;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+.btn-mod {
+  color: white;
+  background-color: #570df8;
+  padding: 8px 14px;
+}
+
+.btn-mod:hover {
+  background-color: #4506cb;
+}
+
+.mod-delete {
+  color: white;
+  font-size: 16px;
+  background-color: #dc3545;
+  padding: 6px 8px;
+}
+
+.mod-delete:hover {
+  background-color: #c52535;
+}
+
+.video-box {
+  border: 1px solid black;
+  padding: 10px 14px;
+}
+
+.video-box h2 {
+  font-size: 14px;
+}
+
+.videoData p {
+  margin: 4px 8px;
+  padding: 6px 10px;
+  border: 1px solid black;
+}
+
+.videoHeader {
+  padding: 2px 8px;
+  align-items: center;
+}
+
+.btn-vid {
+  color: white;
+  background-color: #570df8;
+  padding: 6px 4px;
+  font-size: 12px;
+}
+
+.btn-vid:hover {
+  background-color: #4506cb;
+}
+
+/* User tab css */
 
 .sample {
   text-decoration: underline;
@@ -218,11 +308,6 @@ button {
   padding: 14px 24px;
   /* background-color: #3abff8; */
 }
-
-/* input[type="file"] {
-  padding: 14px 24px;
-  background-color: #3abff8;
-} */
 
 .user h1,
 .find h1 {
@@ -254,7 +339,6 @@ form {
 }
 
 .data {
-  margin-top: 14px;
   border: 1px solid black;
   padding: 10px 10px;
 }
