@@ -68,7 +68,6 @@
         ></a>
       </div>
       <div class="modules px-3" *ngIf="tabStates['modules']">
-
         <div class="mod-header d-flex justify-content-between">
           <h1>{{ cname }}</h1>
           <button class="btn-mod" (click)="addModule()">Add Module</button>
@@ -164,19 +163,29 @@
         <div class="modulesBox container" *ngIf="newModule">
           <form
             #newModuleForm="ngForm"
-            (submit)="createModule(newModuleForm.value)"
+            (submit)="createModule(newModuleData, cname, tname)"
             ngNativeValidate
             #form
             class="form"
           >
-            <div class="moduleData d-flex justify-content-between">
+            <div class="moduleData d-flex justify-content-start">
               <input
                 type="text"
                 placeholder="Module Name"
                 name="modulename"
                 id="modulename"
                 required
+                ngModel
                 [(ngModel)]="newModuleData.modulename"
+              />
+              <input
+                type="text"
+                placeholder="Module Number"
+                name="modulenumber"
+                id="modulenumber"
+                required
+                ngModel
+                [(ngModel)]="newModuleData.modulenumber"
               />
             </div>
             <div class="video-box container">
@@ -190,73 +199,56 @@
                 ></fa-icon>
               </div>
               <hr />
-        
-              <div class="row videoData">
+
+              <div
+                class="row videoData"
+                *ngFor="let video of newModuleData.videos; let i = index"
+              >
                 <p class="col-sm-5">
                   <input
                     type="text"
                     placeholder="Video Name"
-                    name="videoname"
-                    id="videoname"
+                    name="videoname{{ i }}"
                     required
-                    [(ngModel)]="newModuleData.videoname[0]"
+                    ngModel
+                    [(ngModel)]="video.videoname"
                   />
                 </p>
                 <p class="col-sm-5">
                   <input
                     type="text"
                     placeholder="Video Link"
-                    name="videolink"
-                    id="videolink"
+                    name="videolink{{ i }}"
                     required
-                    [(ngModel)]="newModuleData.videolink[0]"
+                    ngModel
+                    [(ngModel)]="video.videolink"
                   />
                 </p>
-              </div>
-        
-              <div class="row videoData" *ngIf="newCreateVideo">
-                <p class="col-sm-5">
-                  <input
-                    type="text"
-                    placeholder="Video Name"
-                    name="additionalVideoname"
-                    id="additionalVideoname"
-                    required
-                    [(ngModel)]="additionalVideoname"
-                  />
-                </p>
-                <p class="col-sm-5">
-                  <input
-                    type="text"
-                    placeholder="Video Link"
-                    name="additionalVideolink"
-                    id="additionalVideolink"
-                    required
-                    [(ngModel)]="additionalVideolink"
-                  />
-                </p>
+                <fa-icon
+                  class="icon ps-3 col-sm-1 text-danger"
+                  (click)="removeVideo(i)"
+                  [icon]="delete"
+                ></fa-icon>
               </div>
             </div>
             <button type="submit" class="btn-mod my-3">Create Module</button>
           </form>
         </div>
-        
 
         <!-- Display Present modules -->
 
-        <div
+        <!-- <div
           class="modulesBox container mb-4"
           *ngFor="let module of courseData; let j = index"
         >
           <form
             #moduleForm="ngForm"
-            (submit)="editModule(moduleForm.value, module.modulenum)"
+            (submit)="editModule(moduleForm.value, module.modulenum,cname,tname)"
             ngNativeValidate
             #form
             class="form"
           >
             <div class="moduleData d-flex justify-content-between">
-              <!-- <h1>Module Name</h1> -->
               <h1>
                 {{ module.modulenum }}
                 <input
@@ -279,7 +271,11 @@
               <div class="row videoHeader">
                 <h2 class="col-sm-5">Video Name</h2>
                 <h2 class="col-sm-5">Video Link</h2>
-                <button class="col-sm-2 btn-vid" type="button" (click)="addVideo(j)">
+                <button
+                  class="col-sm-2 btn-vid"
+                  type="button"
+                  (click)="addVideo(j)"
+                >
                   Add Video
                 </button>
               </div>
@@ -317,23 +313,90 @@
 
               <div class="row videoData" *ngIf="newVideoStates[j]">
                 <p class="col-sm-5">
-                  <input type="text" placeholder="Video" />
+                  <input
+                    type="text"
+                    placeholder="Video Name"
+                    name="videoname"
+                    id="videoname"
+                    required
+                    ngModel
+                  />
                 </p>
                 <p class="col-sm-5">
-                  <input type="text" placeholder="Video" />
+                  <input
+                    type="text"
+                    placeholder="Video Link"
+                    name="videolink"
+                    id="videolink"
+                    required
+                    ngModel
+                  />
                 </p>
                 <fa-icon
                   class="icon ps-3 col-sm-1 text-danger"
-                  
                   [icon]="delete"
                 ></fa-icon>
               </div>
               <button type="submit" class="btn-mod my-2">Save</button>
             </div>
           </form>
+        </div> -->
+
+        <div class="modulesBox container mb-4" *ngFor="let module of courseData; let j = index">
+          <form #moduleForm="ngForm" (submit)="editModule(moduleForm.value, module.modulenum, cname, tname)" ngNativeValidate #form class="form">
+            <div class="moduleData d-flex justify-content-between">
+              <h1>
+                {{ module.modulenum }}
+                <input type="text" placeholder="Module Name" name="modulename" id="modulename" required [(ngModel)]="module.modulename" />
+              </h1>
+              <button class="mod-delete" (click)="deleteModule(cname, module.modulenum)">Delete Module</button>
+            </div>
+            <div class="video-box container">
+              <div class="row videoHeader">
+                <h2 class="col-sm-5">Video Name</h2>
+                <h2 class="col-sm-5">Video Link</h2>
+                <button class="col-sm-2 btn-vid" type="button" (click)="AddNewVideo(j)">Add Video</button>
+              </div>
+              <hr />
+        
+              <div class="row videoData" *ngFor="let video of module.videos | keyvalue; let i = index">
+                <p class="col-sm-5">
+                  <input type="text" placeholder="Video Name" name="videoname{{ i }}" id="videoname{{ i }}" required [(ngModel)]="video.key" />
+                </p>
+                <p class="col-sm-5">
+                  <input type="text" placeholder="Video Link" name="videolink{{ i }}" id="videolink{{ i }}" required [(ngModel)]="video.value" />
+                </p>
+                <fa-icon class="icon ps-3 col-sm-1 text-danger" [icon]="delete" (click)="removeExistingVideo(j, video.key)"></fa-icon>
+              </div>
+
+              <!-- new videos -->
+
+              <!-- <div class="row videoData" *ngFor="let newVideo of videosToAdd; let k = index">
+                <p class="col-sm-5">
+                  <input type="text" placeholder="Video Name" name="videonameNew{{ k }}" id="videonameNew{{ k }}" required [(ngModel)]="newVideo.videoname" />
+                </p>
+                <p class="col-sm-5">
+                  <input type="text" placeholder="Video Link" name="videolinkNew{{ k }}" id="videolinkNew{{ k }}" required [(ngModel)]="newVideo.videolink" />
+                </p>
+                <fa-icon class="icon ps-3 col-sm-1 text-danger" [icon]="delete"  (click)="removeNewVideo(k)"></fa-icon>
+              </div> -->
+
+              <button type="submit" class="btn-mod my-2">Save</button>
+            </div>
+          </form>
+        </div>
+  
+        <!-- Pop ups  -->
+
+        <div class="popup" *ngIf="moduleDeleted">
+          <p>Module Deleted succesfully!</p>
+        </div>
+        <div class="popup" *ngIf="moduleUpdated">
+          <p>Module Updated succesfully!</p>
         </div>
 
       </div>
+
       <div class="projects px-3" *ngIf="tabStates['projects']">
         <p class="common">
           <fa-icon class="icon pe-2" [icon]="info"></fa-icon>

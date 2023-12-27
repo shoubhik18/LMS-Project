@@ -50,3 +50,8 @@ export interface modules{
   modulename:string
   clinks:any
 }
+
+export interface Video {
+  videoname: string;
+  videolink: string;
+}

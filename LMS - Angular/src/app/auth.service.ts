@@ -34,10 +34,10 @@ errorMessage:any
       .post('http://localhost:8080/auth/login', loginData)
       .subscribe((result: User | any) => {
         if (result != null) {
-          console.log(result);
+          // console.log(result);
           this.roleName = result.userRole;
           this.status.emit(false);
-          if (this.roleName === 'admin') {
+          if (this.roleName === 'admin' || this.roleName === 'superadmin') {
             this.roleName = 'admin';
             this.email = loginData.userEmail;
             this.userId = result.userId;
@@ -45,8 +45,8 @@ errorMessage:any
             this.jwt = result.jwtToken;
             this.image = result.userImage;
 
-            localStorage.setItem('email', this.email);
             localStorage.setItem('role', this.roleName);
+            localStorage.setItem('email', this.email);
             localStorage.setItem('userId', this.userId);
             localStorage.setItem('username', this.userName);
             localStorage.setItem('jwtToken', this.jwt);
@@ -61,8 +61,8 @@ errorMessage:any
             this.jwt = result.jwtToken;
             this.image = result.userImage;
 
-            localStorage.setItem('email', this.email);
             localStorage.setItem('role', this.roleName);
+            localStorage.setItem('email', this.email);
             localStorage.setItem('userId', this.userId);
             localStorage.setItem('username', this.userName);
             localStorage.setItem('jwtToken', this.jwt);
@@ -86,7 +86,7 @@ errorMessage:any
         
         this.errorMessage = error.error.errorMessage
         this.status.emit(true);
-        console.log(this.errorMessage)
+        // console.log(this.errorMessage)
       });
   }
 }
