@@ -1,6 +1,6 @@
 package com.lms.dto;
 
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,11 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CourseInfoDto {
+public class CourseUpdateDto {
 
-	private String coursename;
-	private String coursetrainer;
-	private byte[] courseimage;
+	private String courseName;
+	private String courseTrainer;
 	private String description;
-	private List<Integer> modulenum;
+	private boolean archived;
+	private MultipartFile courseImage;
+
 }

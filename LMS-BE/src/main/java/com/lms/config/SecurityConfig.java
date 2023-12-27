@@ -36,11 +36,13 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain sfc(HttpSecurity http) throws Exception {
 
+		String origins = "*";
+
 		http.csrf(csrf -> csrf.disable());
 		http.cors(cor -> cor.configurationSource(new CorsConfigurationSource() {
 			@Override
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-				List<String> listoforigin = List.of("*");
+				List<String> listoforigin = List.of(origins);
 				List<String> listofmethods = List.of("GET", "POST", "PUT", "DELETE");
 				List<String> listofheaders = List.of("*");
 				CorsConfiguration cfg = new CorsConfiguration();
@@ -75,8 +77,8 @@ public class SecurityConfig {
 							"/admin/removecourseaccess/{userEmail}/{courseName}/{trainerName}").authenticated();
 
 					auth.requestMatchers("/admin/course/addcourseuser", "/admin/course/addcourse",
-							"/admin/course/accesscoursetouser", "/admin/course/savevideo",
-							"/admin/course/getcourseuserinfo/{userEmail}",
+							"/admin/course/updatecourse/{courseName}/{trainerName}", "/admin/course/accesscoursetouser",
+							"/admin/course/savevideo", "/admin/course/getcourseuserinfo/{userEmail}",
 							"/admin/course/getcourseusers/{courseName}/{trainerName}",
 
 							"/admin/course/deletecourse/{courseName}/{trainerName}",
