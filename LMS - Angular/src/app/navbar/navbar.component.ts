@@ -36,14 +36,11 @@ export class NavbarComponent {
     this.emailData = localStorage.getItem('capitalizedEmail');
   }
 
+  baseUrl: any = this.auth.getBaseUrl();
+
   ngOnInit(): void {
-    // this.emailData = localStorage.getItem('image');
-    // console.log(this.emailData);
     if (this.image.length > 3) {
       this.myProfile = true;
-      // console.log(this.myProfile);
-      // this.image = this.emailData;
-      // console.log(this.image);
     } else {
       this.myProfile = false;
       // console.log(this.myProfile);

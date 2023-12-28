@@ -39,16 +39,19 @@ public class SecurityConfig {
 		String origins = "*";
 
 		http.csrf(csrf -> csrf.disable());
-		http.cors(cor -> cor.configurationSource(new CorsConfigurationSource() {
+		http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
 			@Override
 			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 				List<String> listoforigin = List.of(origins);
-				List<String> listofmethods = List.of("GET", "POST", "PUT", "DELETE");
+				List<String> listofmethods = List.of("GET", "POST", "PUT", "DELETE", "PATCH");
 				List<String> listofheaders = List.of("*");
+				List<String> listofexposedheaders = List.of("Authorization");
+
 				CorsConfiguration cfg = new CorsConfiguration();
 				cfg.setAllowedOrigins(listoforigin);
 				cfg.setAllowedMethods(listofmethods);
 				cfg.setAllowedHeaders(listofheaders);
+				cfg.setExposedHeaders(listofexposedheaders);
 				// cfg.setAllowCredentials(true);
 				return cfg;
 			}
@@ -92,7 +95,7 @@ public class SecurityConfig {
 
 							"/admin/course/{courseName}/{moduleId}/deletemodule").permitAll();
 
-				}).sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				}).sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(ap()).addFilterBefore((Filter) jfl, UsernamePasswordAuthenticationFilter.class);
 
 		http.formLogin(Customizer.withDefaults()).httpBasic(Customizer.withDefaults());

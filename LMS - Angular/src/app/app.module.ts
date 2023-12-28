@@ -31,6 +31,7 @@ import { LearnersDashboardComponent } from './learners-dashboard/learners-dashbo
     AdminPortalComponent,
     MyProfileComponent,
     LearnersDashboardComponent,
+
   ],
   imports: [
     BrowserModule,

@@ -101,7 +101,7 @@ button {
   cursor: pointer !important;
 }
 
-.addcourse button {
+.addcourse button,.courseEdit button {
   color: white;
   width: 100%;
   border: none;
@@ -110,7 +110,7 @@ button {
   background-color: #570df8;
 }
 
-.addcourse button:hover {
+.addcourse button:hover, .courseEdit button:hover {
   background-color: #4506cb;
 }
 
@@ -151,6 +151,7 @@ button {
   color: #570df8;
   font-weight: 500;
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .course b {
@@ -289,6 +290,74 @@ input:focus {
   background-color: #4506cb;
 }
 
+/* enroll user css */
+
+.form {
+  width: 100%;
+}
+
+.form-input {
+  /* box-sizing: border-box; */
+  width: 100%;
+  border: 1px solid #c2c8d0;
+  border-radius: 4px;
+}
+
+.enroll
+{
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.enroll button{
+  color: white;
+  background-color: #570df8;
+  border-radius: 2px;
+}
+
+.enroll button:hover{
+  background-color: #4506cb;
+}
+
+.input-box {
+  position: relative;
+  /* padding-top: 2px; */
+}
+
+.input-box input {
+  width: 100%;
+  background: transparent;
+  outline: none;
+  transition: 0.5s;
+}
+
+.input-box input:focus,
+.input-box input:valid {
+  border: 2px solid #a0c0d0;
+}
+
+.input-box label {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  pointer-events: none;
+  color: #6f7780;
+  transition: 0.3s ease;
+}
+
+.input-box input:focus ~ label,
+.input-box input:valid ~ label {
+  top: 1px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background-color: white;
+  padding: 0 4px;
+  color: #007bad;
+}
+
 /* User tab css */
 
 .sample {
@@ -341,7 +410,7 @@ form {
 
 .data {
   border: 1px solid black;
-  padding: 10px 10px;
+  padding: 6px 6px;
 }
 
 /* .popup {

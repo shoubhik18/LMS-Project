@@ -30,7 +30,6 @@ export interface course {
 export interface editUser {
   userEmail: string;
   userName: string;
-  img: Blob;
 }
 
 export interface userCourse {

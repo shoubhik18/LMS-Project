@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { faVideo } from '@fortawesome/free-solid-svg-icons';
 import { course, userCourse } from '../user';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,6 +12,9 @@ import { course, userCourse } from '../user';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent {
+
+  baseUrl: any = this.auth.getBaseUrl();
+
   right = faArrowRight;
   camera = faVideo;
   email: string | any = localStorage.getItem('email');
@@ -20,15 +24,15 @@ export class DashboardComponent {
   courseName: any;
   trainerName: any;
 
-  constructor(public router: Router, private http: HttpClient) {}
+  constructor(public router: Router, private http: HttpClient,private auth: AuthService) {}
 
   ngOnInit(): void {
     this.http
-      .get(`http://localhost:8080/admin/course/getcourseuserinfo/${this.email}`)
+      .get(`${this.baseUrl}/admin/course/getcourseuserinfo/${this.email}`)
       .subscribe((result: any) => {
         // console.log(result);
         this.course = result.courseslist;
-        // console.log(this.course);
+        console.log(this.course);
       });
   }
 

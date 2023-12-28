@@ -11,6 +11,8 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./my-profile.component.css'],
 })
 export class MyProfileComponent {
+  baseUrl: any = this.auth.getBaseUrl();
+
   userName: string | any = localStorage.getItem('username');
   userEmail: string | any = localStorage.getItem('email');
   tick = faCheckCircle;
@@ -20,13 +22,9 @@ export class MyProfileComponent {
   myProfile: boolean | any;
   image: string | any = localStorage.getItem('image');
 
-  private baseURL = 'http://localhost:8080/user';
   // username: string = '';
 
-  constructor(
-    private auth: AuthService,
-    private http: HttpClient
-  ) {
+  constructor(private auth: AuthService, private http: HttpClient) {
     this.emailData = localStorage.getItem('capitalizedEmail');
   }
 
@@ -46,56 +44,63 @@ export class MyProfileComponent {
 
   editProfile(data: editUser) {
     console.log(data);
+
+    let formData: FormData = new FormData();
+    formData.append('userName', data.userName);
+    formData.append('userEmail', data.userEmail);
+
     this.http
-      .put(
-        ` http://localhost:8080/user/update/${this.userEmail}`,
-        data
-      )
-      .subscribe((result:any) => {
-        console.log(result);
-
-        if (result) {
-          localStorage.setItem('username', result.userName);
-          localStorage.setItem('email', result.userEmail);
-          alert('updated successfully');
-        } else {
-          alert('error');
-        }
-      });
-  }
-
-  @ViewChild('fileInput') fileInput!: ElementRef;
-
-  onSelectFile(event: any) {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-
-      this.updateProfile(file);
-    }
-  }
-
-  updateProfile(file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Assuming this.userId is your user ID
-    this.http
-      .put(
-        `http://localhost:8080/updateProfilePicture/${this.userId}`,
-        formData
-      )
+      .put(` ${this.baseUrl}/user/update/${this.userEmail}`, formData)
       .subscribe(
-        (response) => {
-          console.log(response);
-          // Handle success, e.g., show a success message
+        (result: any) => {
+          console.log(result);
+
+          if (result) {
+            localStorage.setItem('username', result.userName);
+            localStorage.setItem('email', result.userEmail);
+            alert('updated successfully');
+          } else {
+            alert('error');
+          }
         },
         (error) => {
-          console.error('Error updating profile picture:', error);
-          // Handle error, e.g., show an error message
+          console.log(error);
         }
       );
   }
 
+  selectedFile: File | null = null;
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+  }
+
+  updatePic() {
+    if (!this.selectedFile) {
+      // Handle the case where no file is selected
+      console.error('No file selected.');
+      return;
+    }
+  
+    let formData: FormData = new FormData();
+    formData.append('file', this.selectedFile);
+  
+    // Assuming this.userId is your user ID
+    this.http
+      .put(`${this.baseUrl}/user/uploadimage/${this.userEmail}`, formData)
+      .subscribe(
+        (response) => {
+          console.log(response);
+          // Handle success, e.g., show a success message
+          alert('Profile picture updated successfully.');
+        },
+        (error) => {
+          console.error('Error updating profile picture:', error);
+          // Handle error, e.g., show an error message
+          alert('Error updating profile picture.');
+        }
+      );
+  }
+  
   deletePic() {
     this.http
       .delete(`http://localhost:8080/deletePicture/${this.userId}`)

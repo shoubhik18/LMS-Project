@@ -4,6 +4,7 @@ import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-learners-dashboard',
@@ -11,11 +12,16 @@ import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./learners-dashboard.component.css'],
 })
 export class LearnersDashboardComponent {
+
+
   constructor(
     private sanitizer: DomSanitizer,
     private route: ActivatedRoute,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth:AuthService
   ) {}
+
+  baseUrl: any = this.auth.getBaseUrl();
 
   edit = faEdit;
   darrow = faAngleDown;
@@ -29,26 +35,6 @@ export class LearnersDashboardComponent {
   modules: any;
   moduleLength: any;
 
-  // ngOnInit() {
-  //   this.route.queryParams.subscribe((params) => {
-  //     const courseName = params['courseName'];
-  //     const trainerName = params['trainerName'];
-
-  //     this.courseTitle = courseName;
-  //     this.courseTrainer = trainerName;
-
-  //     this.http
-  //       .get(
-  //         // `http://localhost:8080/course/getcourse?courseName=${courseName}&trainerName=${trainerName}`
-  //         `http://localhost:8080/course/getvideos?userEmail=${this.email}&courseName=${courseName}&trainerName=${trainerName}`
-  //       )
-  //       .subscribe((data: any) => {
-  //         // console.log(data);
-  //         this.courseList = data;
-  //       });
-  //   });
-  // }
-
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const courseName = params['courseName'];
@@ -59,7 +45,7 @@ export class LearnersDashboardComponent {
 
       this.http
         .get(
-          `http://localhost:8080/admin/course/${courseName}/${trainerName}/getvideos`
+          `${this.baseUrl}/admin/course/${courseName}/${trainerName}/getvideos`
         )
         .subscribe((data: any) => {
           this.courseList = data;

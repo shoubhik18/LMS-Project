@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -110,12 +111,12 @@ public class UserController {
 
 	/*
 	 * 
-	 * API used to update the details of user
+	 * API used to update the details by user
 	 * 
 	 */
 
 	@PutMapping("/update/{userEmail}")
-	public ResponseEntity<User> UserUpdate(@RequestBody User user, @PathVariable("userEmail") String UserEmail) {
+	public ResponseEntity<User> UserUpdate(@ModelAttribute User user, @PathVariable("userEmail") String UserEmail) {
 
 		User luupdate = us.userUpdate(user, UserEmail);
 		if (luupdate == null) {
@@ -189,6 +190,12 @@ public class UserController {
 
 	}
 
+	/*
+	 * 
+	 * API used to upload the resume by user
+	 * 
+	 */
+
 	@PostMapping("/{userEmail}/uploadresume")
 	public ResponseEntity<String> saveResume(@PathVariable("userEmail") String userEmail,
 			@RequestBody MultipartFile multipart) throws Exception {
@@ -200,6 +207,12 @@ public class UserController {
 		}
 		return new ResponseEntity<String>("Resume Not Saved", HttpStatus.BAD_REQUEST);
 	}
+
+	/*
+	 * 
+	 * API used to download resume by user
+	 * 
+	 */
 
 	@GetMapping("/{userEmail}/getresume")
 	public ResponseEntity<byte[]> getResumes(@PathVariable("email") String userEmail) {
@@ -215,6 +228,12 @@ public class UserController {
 
 	}
 
+	/*
+	 * 
+	 * API used to delete resume by user
+	 * 
+	 */
+
 	@DeleteMapping("/{userEmail}/deleteresume")
 	public ResponseEntity<String> deleteResume(@PathVariable("userEmail") String userEmail) {
 
@@ -227,6 +246,12 @@ public class UserController {
 		}
 
 	}
+
+	/*
+	 * 
+	 * API used to get all videos of particular course and trainer by user
+	 * 
+	 */
 
 	@GetMapping("/{courseName}/{trainerName}/getvideos")
 	public ResponseEntity<List<CoursesModuleInfoDto>> getVideos(@PathVariable("courseName") String courseName,

@@ -7,6 +7,7 @@ import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { User, Video, modules } from '../user';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-admin-portal',
@@ -20,14 +21,12 @@ export class AdminPortalComponent {
 
   constructor(
     private http: HttpClient,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private auth: AuthService
   ) {}
 
-  jwtToken:any = localStorage.getItem('jwtToken');
-  headers:any = new HttpHeaders({
-    'Authorization': `Bearer ${this.jwtToken}`,
-    'Content-Type': 'application/json', // Adjust content type based on your API
-  });
+  baseUrl: any = this.auth.getBaseUrl();
+  jwtToken: any = localStorage.getItem('jwtToken');
 
   //icons
   camera = faVideo;
@@ -41,6 +40,8 @@ export class AdminPortalComponent {
   isShowAdd = false;
   selectedListItem: number | null = null;
   isShowEdit = false;
+  searchItems: any;
+  courseEdit: boolean = false;
 
   user = false;
   email: string = '';
@@ -49,6 +50,9 @@ export class AdminPortalComponent {
   courseListData: any;
   cname: string = '';
   tname: string = '';
+  oldcname: string = '';
+  oldtname: string = '';
+  description: string = '';
   moduleLength: any;
   courseData: any;
   newModule: boolean = false;
@@ -57,30 +61,94 @@ export class AdminPortalComponent {
   courseUsers: any;
 
   //pop-ups
-  moduleDeleted = false;
-  moduleUpdated = false;
+  popup = false;
+  message = '';
 
   ngOnInit() {
     this.http
-      .get('http://localhost:8080/admin/course/getallcourses')
+      .get(`${this.baseUrl}/admin/course/getallcourses`)
       .subscribe((data) => {
         this.courseListData = data;
+        this.searchItems = this.courseListData;
         // console.log(this.courseListData);
       });
+    // console.log(this.jwtToken);
+    // console.log(this.headers);
   }
 
-  // searchItems = this.list;
+  // search functions
 
   search(search: string) {
-    // this.searchItems = this.list.filter((item) =>
-    //   item.title.toLowerCase().includes(search.toLowerCase())
-    // );
+    this.searchItems = this.courseListData.filter(
+      (item: { courseName: string }) =>
+        item.courseName.toLowerCase().includes(search.toLowerCase())
+    );
   }
 
   selectListItem(index: number) {
     this.selectedListItem = index;
     this.courselist = true;
     this.isShowAdd = false;
+    this.courseEdit = false;
+  }
+
+  editCourse() {
+    this.isShowEdit = false;
+    this.courselist = true;
+    this.courseEdit = true;
+    this.oldcname = this.cname;
+    this.oldtname = this.tname;
+  }
+
+  // create/edit course api
+  selectedFile: File | null = null;
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+  }
+
+  createCourse(newCourse: any) {
+    console.log(newCourse);
+    let formData: FormData = new FormData();
+    formData.append('courseName', newCourse.courseName);
+    formData.append('courseTrainer', newCourse.courseTrainer);
+    formData.append('description', newCourse.description);
+
+    this.http
+      .post(`${this.baseUrl}/admin/course/addcourse`, formData)
+      .subscribe(
+        (response) => {
+          console.log(response);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  editExistingCourse(course: any) {
+    console.log(course.courseName);
+    console.log('cname:', this.oldcname, 'tname:', this.oldtname);
+
+    let formData: FormData = new FormData();
+    formData.append('courseName', course.courseName);
+    formData.append('courseTrainer', course.courseTrainer);
+    formData.append('description', course.description);
+
+    if (this.selectedFile) {
+      formData.append('courseImage', this.selectedFile);
+    }
+
+    this.http
+      .put(
+        `${this.baseUrl}/admin/course/updatecourse/${this.oldcname}/${this.oldtname}`,
+        formData
+      )
+      .subscribe((result) => {
+        console.log(result);
+      });
+
+    this.oldcname = '';
+    this.oldtname = '';
   }
 
   listItem(cname: string, tname: string) {
@@ -89,11 +157,10 @@ export class AdminPortalComponent {
     this.newModule = false;
 
     this.http
-      .get(`http://localhost:8080/admin/course/${cname}/${tname}/getvideos`)
+      .get(`${this.baseUrl}/admin/course/${cname}/${tname}/getvideos`)
       .subscribe(
         (result: any) => {
           // console.log(result);
-
           this.cname = cname;
           this.tname = tname;
           this.courseData = result;
@@ -107,11 +174,16 @@ export class AdminPortalComponent {
         }
       );
 
+    this.http
+      .get(`${this.baseUrl}/admin/course/${cname}/courseinfo`)
+      .subscribe((result: any) => {
+        // console.log(result);
+        this.description = result.description;
+      });
+
     //Enrolled Users API
     this.http
-      .get(
-        `http://localhost:8080/admin/course/getcourseusers/${cname}/${tname}`
-      )
+      .get(`${this.baseUrl}/admin/course/getcourseusers/${cname}/${tname}`)
       .subscribe((data) => {
         // console.log(data);
         this.courseUsers = data;
@@ -120,13 +192,11 @@ export class AdminPortalComponent {
 
   //EDIT MODULE DATA FUNCTIONS
 
-  // editingModuleIndex: number | null = null;
-  // newVideos: { videoname: string; videolink: string }[] = [];
-
   videosToAdd: { videoname: string; videolink: string }[] = [];
 
   AddNewVideo(moduleIndex: number) {
     const moduleData = this.courseData[moduleIndex];
+    // console.log(typeof(moduleData));
     // Ensure that moduleData.videos is initialized as an object
     if (typeof moduleData.videos !== 'object' || moduleData.videos === null) {
       moduleData.videos = {};
@@ -175,50 +245,23 @@ export class AdminPortalComponent {
     console.log(requestData);
 
     // Add your HTTP call to update the data here
-    // this.http
-    //   .put(
-    //     `http://localhost:8080/admin/course/${cname}/${moduleId}/updatemodules`,
-    //     requestData
-    //   )
-    //   .subscribe((result) => {
-    //     console.log(result);
+    this.http
+      .put(
+        `${this.baseUrl}/admin/course/${cname}/${moduleId}/updatemodules`,
+        requestData
+      )
+      .subscribe((result) => {
+        console.log(result);
 
-    //     this.moduleUpdated = true;
+        this.popup = true;
+        this.message = 'Module Updated Successfully!';
 
-    //     setTimeout(() => {
-    //       this.moduleUpdated = false;
-    //     }, 5000);
-    //     window.location.reload();
-    //   });
-  }
-
-  // editModule(moduledata: any, moduleId: string, cname: string, tname: string) {
-  //   console.log(moduledata);
-
-  //   const modulename = moduledata.modulename;
-  //   // console.log(moduledata);
-  //   const videonames = [];
-  //   const videolinks = [];
-  //   for (let i = 0; moduledata[`videoname${i}`] !== undefined; i++) {
-  //     videonames.push(moduledata[`videoname${i}`]);
-  //     videolinks.push(moduledata[`videolink${i}`]);
-  //   }
-  //   const requestData = {
-  //     modulename: modulename,
-  //     videoname: videonames,
-  //     links: videolinks
-  //   };
-  // // API CALL
-  // console.log(requestData);
-  //   // this.http.put(`http://localhost:8080/admin/course/${cname}/${moduleId}/updatemodules`,requestData)
-  //   // .subscribe((result)=>{
-  //   //   // console.log(result);
-
-  //   // })
-  // }
-
-  addVideo(j: number) {
-    this.newVideoStates[j] = true;
+        setTimeout(() => {
+          this.message = ' ';
+          this.popup = false;
+        }, 5000);
+        window.location.reload();
+      });
   }
 
   // ADD MODULE FUNCTIONS
@@ -243,6 +286,7 @@ export class AdminPortalComponent {
         video.videoname.trim() !== '' || video.videolink.trim() !== ''
     );
 
+    // request data format to send to the backend
     const formattedData = {
       courseName: cname,
       trainerName: tname,
@@ -255,9 +299,15 @@ export class AdminPortalComponent {
     console.log(formattedData);
 
     this.http
-      .post('http://localhost:8080/admin/course/savevideo', formattedData)
+      .post(`${this.baseUrl}/admin/course/savevideo`, formattedData)
       .subscribe((result) => {
-        console.log(result);
+        this.popup = true;
+        this.message = 'Module Created Successfully!';
+        setTimeout(() => {
+          this.popup = false;
+          this.message = '';
+        }, 5000);
+        window.location.reload();
       });
   }
 
@@ -271,19 +321,45 @@ export class AdminPortalComponent {
   }
 
   deleteModule(cname: string, moduleId: string) {
-    console.log(cname, moduleId);
+    // console.log(cname, moduleId);
     this.http
-      .delete(
-        `http://localhost:8080/admin/course/${cname}/${moduleId}/deletemodule`
-      )
+      .delete(`${this.baseUrl}/admin/course/${cname}/${moduleId}/deletemodule`)
       .subscribe(
         (response) => {
           console.log(response);
-          this.moduleDeleted = true;
-
+          this.popup = true;
+          this.message = 'Module Deleted Successfully!';
           setTimeout(() => {
-            this.moduleDeleted = false;
+            this.popup = false;
+            this.message = '';
           }, 5000);
+          window.location.reload();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  // User access/remove access from course
+
+  enrollUser(email: any, cname: string, tname: string) {
+    // console.log(email.userEmail,cname,tname);
+    this.jwtToken = localStorage.getItem('jwtToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.jwtToken}`,
+      'Content-Type': 'application/json',
+    });
+
+    this.http
+      .post(
+        `${this.baseUrl}/admin/course/accesscoursetouser?courseUserEmail=${email.userEmail}&courseName=${cname}&trainerName=${tname}`,
+        { headers }
+      )
+      .subscribe(
+        (result) => {
+          // console.log(result);
+          
         },
         (error) => {
           console.log(error);
@@ -292,14 +368,35 @@ export class AdminPortalComponent {
   }
 
   removeUserAccess(email: string, cname: string, tname: string) {
+    console.log(email, cname, tname);
+    this.jwtToken = localStorage.getItem('jwtToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.jwtToken}`,
+      'Content-Type': 'application/json',
+    });
+    // console.log(headers);
+
     this.http
       .patch(
-        `http://localhost:8080/admin/removecourseaccess/${email}/${cname}/${tname}`,
-        { headers: this.headers }
+        `${this.baseUrl}/admin/removecourseaccess/${email}/${cname}/${tname}`,
+        {},
+        { headers }
       )
-      .subscribe((data) => {
-        console.log(data);
-      });
+      .subscribe(
+        (data) => {
+          console.log(data);
+          this.popup = true;
+          this.message = 'User Removed Successfully!';
+          setTimeout(() => {
+            this.popup = false;
+            this.message = '';
+          }, 5000);
+          window.location.reload();
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   }
 
   add() {
@@ -308,8 +405,18 @@ export class AdminPortalComponent {
     this.isShowEdit = false;
     this.selectedListItem = null;
     this.user = false;
+    this.courseEdit = false;
   }
 
+  course() {
+    if (this.courselist === false) {
+      this.courselist = true;
+    }
+    this.user = false;
+    this.courseEdit = false;
+  }
+
+  //tab states dynamic stylings
   tabStates: { [key: string]: boolean } = {
     courseInfo: true,
     modules: false,
@@ -333,32 +440,6 @@ export class AdminPortalComponent {
     this.tabStates[tab] = true;
   }
 
-  course() {
-    if (this.courselist === false) {
-      this.courselist = true;
-    }
-    this.user = false;
-  }
-
-  createCourse(newCourse: any) {
-    // console.log(newCourse);
-    this.http
-      .post('http://localhost:8080/admin/course/addcourse', newCourse)
-      .subscribe(
-        (response) => {
-          response;
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-
-    // const newCourse = { title };
-    // this.list.push(newCourse);
-    // alert('Course added succesfully');
-    // this.searchItems = this.list;
-  }
-
   // User functions
 
   users() {
@@ -366,24 +447,28 @@ export class AdminPortalComponent {
     this.courselist = false;
     this.isShowAdd = false;
     this.isShowEdit = false;
+    this.courseEdit = false;
   }
 
   sampleUsers() {
-    this.http.get(' http://localhost:8080/sample-file').subscribe();
+    // this.http.get(' http://localhost:8080/sample-file').subscribe();
   }
 
-  userFind(user: string) {
+  userFind(user: any) {
     this.find = true;
 
-    // this.http
-    //   .post(' http://localhost:8080/userEmail', user)
-    //   .subscribe((response: any) => {
-    //     if (response !== null) {
-    //       this.table = true;
-    //       this.userInfo = response;
-    //     } else {
-    //       this.table = false;
-    //     }
-    //   });
+    // console.log(user);
+
+    this.http
+      .get(`${this.baseUrl}/admin/course/getcourseuserinfo/${user.email}`)
+      .subscribe((response: any) => {
+        if (response !== null) {
+          this.table = true;
+          this.userInfo = response;
+          console.log(this.userInfo);
+        } else {
+          this.table = false;
+        }
+      });
   }
 }

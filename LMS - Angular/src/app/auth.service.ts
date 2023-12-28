@@ -9,11 +9,14 @@ import { EmailService } from './email.service';
   providedIn: 'root',
 })
 export class AuthService {
+
+  private baseUrl = 'http://localhost:8080';
+
   capitalizedEmail: string = '';
   // status: string = '';
 
   status = new EventEmitter<boolean>(false);
-errorMessage:any
+  errorMessage:any
 
   roleName: string = '';
   userName: string = '';
@@ -31,7 +34,7 @@ errorMessage:any
     // console.log(loginData);
 
     this.http
-      .post('http://localhost:8080/auth/login', loginData)
+      .post(`${this.baseUrl}/auth/login`, loginData)
       .subscribe((result: User | any) => {
         if (result != null) {
           // console.log(result);
@@ -89,4 +92,9 @@ errorMessage:any
         // console.log(this.errorMessage)
       });
   }
+
+  getBaseUrl(): string {
+    return this.baseUrl;
+  }
+
 }
