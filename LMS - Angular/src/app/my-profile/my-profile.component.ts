@@ -80,13 +80,13 @@ export class MyProfileComponent {
       console.error('No file selected.');
       return;
     }
-  
+
     let formData: FormData = new FormData();
     formData.append('file', this.selectedFile);
-  
+
     // Assuming this.userId is your user ID
     this.http
-      .put(`${this.baseUrl}/user/uploadimage/${this.userEmail}`, formData)
+      .post(`${this.baseUrl}/user/uploadimage/${this.userEmail}`, formData)
       .subscribe(
         (response) => {
           console.log(response);
@@ -100,7 +100,7 @@ export class MyProfileComponent {
         }
       );
   }
-  
+
   deletePic() {
     this.http
       .delete(`http://localhost:8080/deletePicture/${this.userId}`)
