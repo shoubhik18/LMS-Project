@@ -112,8 +112,8 @@
           </button>
         </p>
         <p class="archive">
-          <button>
-            <fa-icon class="icon pe-2" [icon]="archive"></fa-icon> Archive
+          <button (click)="deleteCourse(cname,tname)">
+            <fa-icon class="icon pe-2" [icon]="delete"></fa-icon> Delete Course
           </button>
         </p>
         <a class="ps-1" (click)="editCourse()"
@@ -281,20 +281,7 @@
                   [icon]="delete"
                   (click)="removeExistingVideo(j, video.key)"
                 ></fa-icon>
-              </div>
-
-              <!-- new videos -->
-
-              <!-- <div class="row videoData" *ngFor="let newVideo of videosToAdd; let k = index">
-                <p class="col-sm-5">
-                  <input type="text" placeholder="Video Name" name="videonameNew{{ k }}" id="videonameNew{{ k }}" required [(ngModel)]="newVideo.videoname" />
-                </p>
-                <p class="col-sm-5">
-                  <input type="text" placeholder="Video Link" name="videolinkNew{{ k }}" id="videolinkNew{{ k }}" required [(ngModel)]="newVideo.videolink" />
-                </p>
-                <fa-icon class="icon ps-3 col-sm-1 text-danger" [icon]="delete"  (click)="removeNewVideo(k)"></fa-icon>
-              </div> -->
-
+              </div> 
               <button type="submit" class="btn-mod my-2">Save</button>
             </div>
           </form>
@@ -479,8 +466,6 @@
         <h1 class="text-center">Import Users</h1>
         <label class="mt-2" for="">Upload users file</label>
         <a
-          href=" http://localhost:8080/sample-file"
-          download="sample-users.csv"
           class="sample"
           >Sample-users.csv</a
         >

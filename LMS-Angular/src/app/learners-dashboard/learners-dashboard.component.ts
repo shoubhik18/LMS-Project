@@ -48,6 +48,7 @@ export class LearnersDashboardComponent {
           `${this.baseUrl}/admin/course/${courseName}/${trainerName}/getvideos`
         )
         .subscribe((data: any) => {
+          data.sort((a: any, b: any) => a.modulenum - b.modulenum);
           this.courseList = data;
 
           // Extract unique modulenum values from courseList

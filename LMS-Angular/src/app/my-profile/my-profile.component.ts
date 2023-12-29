@@ -40,6 +40,14 @@ export class MyProfileComponent {
       this.image = localStorage.getItem('image');
       // console.log(this.image);
     }
+
+    this.http.get(`${this.baseUrl}/user/downloadimage/${this.userEmail}`,{ responseType: 'text' }).subscribe((result)=>{
+      // console.log(result);
+      if(result.length>3){
+        localStorage.setItem('image', result);
+        this.image = result;
+      }
+    })
   }
 
   editProfile(data: editUser) {
@@ -80,27 +88,27 @@ export class MyProfileComponent {
       console.error('No file selected.');
       return;
     }
-
+  
     let formData: FormData = new FormData();
     formData.append('file', this.selectedFile);
-
+  
     // Assuming this.userId is your user ID
     this.http
-      .post(`${this.baseUrl}/user/uploadimage/${this.userEmail}`, formData)
+      .post(`${this.baseUrl}/user/uploadimage/${this.userEmail}`, formData,{ responseType: 'text' })
       .subscribe(
         (response) => {
           console.log(response);
-          // Handle success, e.g., show a success message
           alert('Profile picture updated successfully.');
+          this.image = response
+          window.location.reload()
         },
         (error) => {
           console.error('Error updating profile picture:', error);
-          // Handle error, e.g., show an error message
           alert('Error updating profile picture.');
         }
       );
   }
-
+  
   deletePic() {
     this.http
       .delete(`http://localhost:8080/deletePicture/${this.userId}`)

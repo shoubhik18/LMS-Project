@@ -32,7 +32,7 @@ export class DashboardComponent {
       .subscribe((result: any) => {
         // console.log(result);
         this.course = result.courseslist;
-        console.log(this.course);
+        // console.log(this.course);
       });
   }
 

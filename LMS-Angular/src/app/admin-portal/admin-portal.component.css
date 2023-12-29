@@ -184,12 +184,19 @@ button {
 }
 
 .archive button {
+  background-color: #DC3545;
+  padding: 14px 18px;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+}
+/* .archive button {
   background-color: #fbbd23;
   padding: 14px 18px;
   color: black;
   font-weight: 500;
   font-size: 14px;
-}
+} */
 
 .common p {
   margin: 0px !important;

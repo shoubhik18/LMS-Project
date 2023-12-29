@@ -69,6 +69,10 @@ export class AdminPortalComponent {
       .get(`${this.baseUrl}/admin/course/getallcourses`)
       .subscribe((data) => {
         this.courseListData = data;
+        this.courseListData.sort(
+          (a: { courseName: string }, b: { courseName: any }) =>
+            a.courseName.localeCompare(b.courseName)
+        );
         this.searchItems = this.courseListData;
         // console.log(this.courseListData);
       });
@@ -100,24 +104,34 @@ export class AdminPortalComponent {
     this.oldtname = this.tname;
   }
 
-  // create/edit course api
+  //  courses api
   selectedFile: File | null = null;
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
   }
 
   createCourse(newCourse: any) {
-    console.log(newCourse);
+    // console.log(newCourse);
     let formData: FormData = new FormData();
     formData.append('courseName', newCourse.courseName);
     formData.append('courseTrainer', newCourse.courseTrainer);
     formData.append('description', newCourse.description);
 
     this.http
-      .post(`${this.baseUrl}/admin/course/addcourse`, formData)
+      .post(`${this.baseUrl}/admin/course/addcourse`, formData, {
+        responseType: 'text',
+      })
       .subscribe(
         (response) => {
           console.log(response);
+          this.popup = true;
+          this.message = 'Course Created Successfully!';
+
+          setTimeout(() => {
+            this.message = ' ';
+            this.popup = false;
+            window.location.reload();
+          }, 3000);
         },
         (error) => {
           console.log(error);
@@ -141,14 +155,40 @@ export class AdminPortalComponent {
     this.http
       .put(
         `${this.baseUrl}/admin/course/updatecourse/${this.oldcname}/${this.oldtname}`,
-        formData
+        formData ,{ responseType: 'text' }
       )
       .subscribe((result) => {
         console.log(result);
+        this.popup = true;
+        this.message = 'Course Updated Successfully!';
+
+        setTimeout(() => {
+          this.message = ' ';
+          this.popup = false;
+        }, 5000);
       });
 
     this.oldcname = '';
     this.oldtname = '';
+  }
+
+  deleteCourse(cname: string, tname: string) {
+    // console.log(cname , tname);
+    this.http
+      .delete(`${this.baseUrl}/admin/course/deletecourse/${cname}/${tname}`,{
+        responseType: 'text',
+      })
+      .subscribe((result) => {
+        console.log(result);
+        this.popup = true;
+        this.message = 'Deleted Course Successfully!';
+
+        setTimeout(() => {
+          this.message = ' ';
+          this.popup = false;
+          window.location.reload();
+        }, 3000);
+      });
   }
 
   listItem(cname: string, tname: string) {
@@ -160,6 +200,7 @@ export class AdminPortalComponent {
       .get(`${this.baseUrl}/admin/course/${cname}/${tname}/getvideos`)
       .subscribe(
         (result: any) => {
+          result.sort((a: any, b: any) => a.modulenum - b.modulenum);
           // console.log(result);
           this.cname = cname;
           this.tname = tname;
@@ -299,8 +340,9 @@ export class AdminPortalComponent {
     console.log(formattedData);
 
     this.http
-      .post(`${this.baseUrl}/admin/course/savevideo`, formattedData)
+      .post(`${this.baseUrl}/admin/course/savevideo`, formattedData,{responseType:'text'})
       .subscribe((result) => {
+        alert(newModuleData.modulename + ' Created Successfully!')
         this.popup = true;
         this.message = 'Module Created Successfully!';
         setTimeout(() => {
@@ -327,6 +369,7 @@ export class AdminPortalComponent {
       .subscribe(
         (response) => {
           console.log(response);
+          alert(moduleId + ' Deleted Successfully!')
           this.popup = true;
           this.message = 'Module Deleted Successfully!';
           setTimeout(() => {
@@ -354,12 +397,13 @@ export class AdminPortalComponent {
     this.http
       .post(
         `${this.baseUrl}/admin/course/accesscoursetouser?courseUserEmail=${email.userEmail}&courseName=${cname}&trainerName=${tname}`,
-        { headers }
+        { headers },{ responseType: 'text' }
       )
       .subscribe(
         (result) => {
-          // console.log(result);
-          
+          console.log(result);
+          alert(email.userEmail + ' Enrolled Successfully!')
+         window.location.reload()
         },
         (error) => {
           console.log(error);
@@ -385,16 +429,19 @@ export class AdminPortalComponent {
       .subscribe(
         (data) => {
           console.log(data);
-          this.popup = true;
-          this.message = 'User Removed Successfully!';
-          setTimeout(() => {
-            this.popup = false;
-            this.message = '';
-          }, 5000);
+          alert(email + 'Removed Successfully!')
           window.location.reload();
         },
         (error) => {
           console.log(error);
+          this.popup = true;
+          // console.log(error.error.text);
+          this.message = error.error.text;
+          setTimeout(() => {
+            this.popup = false;
+            this.message = '';
+            // window.location.reload();
+          }, 4000);
         }
       );
   }
@@ -450,9 +497,7 @@ export class AdminPortalComponent {
     this.courseEdit = false;
   }
 
-  sampleUsers() {
-    // this.http.get(' http://localhost:8080/sample-file').subscribe();
-  }
+  
 
   userFind(user: any) {
     this.find = true;
