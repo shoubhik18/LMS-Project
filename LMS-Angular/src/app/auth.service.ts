@@ -46,7 +46,7 @@ export class AuthService {
             this.userId = result.userId;
             this.userName = result.userName;
             this.jwt = result.jwtToken;
-            this.image = result.userImage;
+            this.image = result.profilePhoto;
 
             localStorage.setItem('role', this.roleName);
             localStorage.setItem('email', this.email);
@@ -62,7 +62,7 @@ export class AuthService {
             this.userId = result.userId;
             this.userName = result.userName;
             this.jwt = result.jwtToken;
-            this.image = result.userImage;
+            this.image = result.profilePhoto;
 
             localStorage.setItem('role', this.roleName);
             localStorage.setItem('email', this.email);

@@ -11,12 +11,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CourseUpdateDto {
+public class UserUpdateDto {
 
-	private String courseName;
-	private String courseTrainer;
-	private String courseDescription;
-	private boolean archived;
-	private MultipartFile courseImage;
+	private String userName;
+
+	private String userEmail;
+
+	private String password;
+
+	private MultipartFile profilePhoto;
+
+	private String role;
+
+	private boolean isActive;
 
 }

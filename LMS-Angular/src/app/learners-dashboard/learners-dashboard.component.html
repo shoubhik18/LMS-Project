@@ -30,8 +30,8 @@
       <div class="row" *ngFor="let module of courseList; let i = index">
         <div class="module d-flex flex-row" (click)="expand(i)">
           <div class="d-flex flex-row">
-            <p class="index">{{ module.modulenum }}</p>
-            <p>{{ module.modulename }}</p>
+            <p class="index">{{ module.moduleNumber }}</p>
+            <p>{{ module.moduleName }}</p>
           </div>
           <div class="arrow">
             <fa-icon class="icon" [icon]="darrow"></fa-icon>
@@ -40,7 +40,7 @@
         <div class="subtopics px-0" *ngIf="modules[i].isShowTopic">
           <div
             class="record d-flex flex-row"
-            *ngFor="let video of module.videos | keyvalue; let j = index"
+            *ngFor="let video of module.videoInfo | keyvalue; let j = index"
             (click)="showVideo(video.value)"
           >
             <p class="inside-index">{{ j + 1 }}</p>

@@ -31,16 +31,16 @@ export class DashboardComponent {
       .get(`${this.baseUrl}/admin/course/getcourseuserinfo/${this.email}`)
       .subscribe((result: any) => {
         // console.log(result);
-        this.course = result.courseslist;
+        this.course = result.coursesList;
         // console.log(this.course);
       });
   }
 
-  continue(courseName: string, trainerName: string) {
+  continue(courseName: string, courseTrainer: string) {
     this.router.navigate(['learners'], {
       queryParams: {
         courseName: courseName,
-        trainerName: trainerName,
+        courseTrainer: courseTrainer,
       },
     });
   }

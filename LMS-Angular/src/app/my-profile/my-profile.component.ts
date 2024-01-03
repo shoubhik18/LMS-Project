@@ -15,6 +15,7 @@ export class MyProfileComponent {
 
   userName: string | any = localStorage.getItem('username');
   userEmail: string | any = localStorage.getItem('email');
+  oldEmail:string | any = localStorage.getItem('email');
   tick = faCheckCircle;
   delete = faTrash;
   userId: string | any = localStorage.getItem('userId');
@@ -43,7 +44,7 @@ export class MyProfileComponent {
 
     this.http.get(`${this.baseUrl}/user/downloadimage/${this.userEmail}`,{ responseType: 'text' }).subscribe((result)=>{
       // console.log(result);
-      if(result.length>3){
+      if(result.startsWith('data:image/png;base64')){
         localStorage.setItem('image', result);
         this.image = result;
       }
@@ -58,7 +59,7 @@ export class MyProfileComponent {
     formData.append('userEmail', data.userEmail);
 
     this.http
-      .put(` ${this.baseUrl}/user/update/${this.userEmail}`, formData)
+      .put(` ${this.baseUrl}/user/update/${this.oldEmail}`, formData)
       .subscribe(
         (result: any) => {
           console.log(result);
@@ -90,7 +91,7 @@ export class MyProfileComponent {
     }
   
     let formData: FormData = new FormData();
-    formData.append('file', this.selectedFile);
+    formData.append('photo', this.selectedFile);
   
     // Assuming this.userId is your user ID
     this.http

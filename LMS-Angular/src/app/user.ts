@@ -23,7 +23,7 @@ export interface course {
   archive: boolean;
   updatedAt: string;
   createdAt: string;
-  description: string;
+  courseDescription: string;
   livelink: string;
 }
 
@@ -44,13 +44,13 @@ export interface clist {
   coursecreatedate: string;
 }
 
-export interface modules{
-  modulenum:string
-  modulename:string
-  clinks:any
+export interface modules {
+  moduleNumber: string;
+  moduleName: string;
+  clinks: any;
 }
 
 export interface Video {
-  videoname: string;
-  videolink: string;
+  videoName: string;
+  videoLink: string;
 }

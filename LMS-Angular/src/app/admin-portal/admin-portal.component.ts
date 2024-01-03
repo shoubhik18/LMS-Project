@@ -57,7 +57,7 @@ export class AdminPortalComponent {
   courseData: any;
   newModule: boolean = false;
   newCreateVideo: boolean = false;
-  newVideoStates: boolean[] = [];
+  newvideoInfotates: boolean[] = [];
   courseUsers: any;
 
   //pop-ups
@@ -115,7 +115,7 @@ export class AdminPortalComponent {
     let formData: FormData = new FormData();
     formData.append('courseName', newCourse.courseName);
     formData.append('courseTrainer', newCourse.courseTrainer);
-    formData.append('description', newCourse.description);
+    formData.append('courseDescription', newCourse.courseDescription);
 
     this.http
       .post(`${this.baseUrl}/admin/course/addcourse`, formData, {
@@ -124,6 +124,7 @@ export class AdminPortalComponent {
       .subscribe(
         (response) => {
           console.log(response);
+          alert(newCourse.courseName + ' Created succesfully!');
           this.popup = true;
           this.message = 'Course Created Successfully!';
 
@@ -146,7 +147,7 @@ export class AdminPortalComponent {
     let formData: FormData = new FormData();
     formData.append('courseName', course.courseName);
     formData.append('courseTrainer', course.courseTrainer);
-    formData.append('description', course.description);
+    formData.append('courseDescription', course.courseDescription);
 
     if (this.selectedFile) {
       formData.append('courseImage', this.selectedFile);
@@ -155,10 +156,12 @@ export class AdminPortalComponent {
     this.http
       .put(
         `${this.baseUrl}/admin/course/updatecourse/${this.oldcname}/${this.oldtname}`,
-        formData ,{ responseType: 'text' }
+        formData,
+        { responseType: 'text' }
       )
       .subscribe((result) => {
         console.log(result);
+        alert(this.cname + ' Updated Successfully!');
         this.popup = true;
         this.message = 'Course Updated Successfully!';
 
@@ -175,10 +178,11 @@ export class AdminPortalComponent {
   deleteCourse(cname: string, tname: string) {
     // console.log(cname , tname);
     this.http
-      .delete(`${this.baseUrl}/admin/course/deletecourse/${cname}/${tname}`,{
+      .delete(`${this.baseUrl}/admin/course/deletecourse/${cname}/${tname}`, {
         responseType: 'text',
       })
       .subscribe((result) => {
+        alert(cname + ' Deleted Successfully!');
         console.log(result);
         this.popup = true;
         this.message = 'Deleted Course Successfully!';
@@ -200,7 +204,9 @@ export class AdminPortalComponent {
       .get(`${this.baseUrl}/admin/course/${cname}/${tname}/getvideos`)
       .subscribe(
         (result: any) => {
-          result.sort((a: any, b: any) => a.modulenum - b.modulenum);
+          result.sort(
+            (a: any, b: any) => a.moduleNumber - b.moduleNumber
+          );
           // console.log(result);
           this.cname = cname;
           this.tname = tname;
@@ -219,7 +225,7 @@ export class AdminPortalComponent {
       .get(`${this.baseUrl}/admin/course/${cname}/courseinfo`)
       .subscribe((result: any) => {
         // console.log(result);
-        this.description = result.description;
+        this.description = result.courseDescription;
       });
 
     //Enrolled Users API
@@ -233,53 +239,59 @@ export class AdminPortalComponent {
 
   //EDIT MODULE DATA FUNCTIONS
 
-  videosToAdd: { videoname: string; videolink: string }[] = [];
+  videoInfoToAdd: { videoName: string; videoLink: string }[] = [];
 
   AddNewVideo(moduleIndex: number) {
     const moduleData = this.courseData[moduleIndex];
     // console.log(typeof(moduleData));
-    // Ensure that moduleData.videos is initialized as an object
-    if (typeof moduleData.videos !== 'object' || moduleData.videos === null) {
-      moduleData.videos = {};
+    // Ensure that moduleData.videoInfo is initialized as an object
+    if (
+      typeof moduleData.videoInfo !== 'object' ||
+      moduleData.videoInfo === null
+    ) {
+      moduleData.videoInfo = {};
     }
 
-    // Add a new empty entry to the videos object
-    const newKey = `newvideo ${Object.keys(moduleData.videos).length + 1}`;
-    moduleData.videos[newKey] = ''; // Set an empty string for videoname
+    // Add a new empty entry to the videoInfo object
+    const newKey = `newvideo ${Object.keys(moduleData.videoInfo).length + 1}`;
+    moduleData.videoInfo[newKey] = ''; // Set an empty string for videoName
 
     // Force change detection to update the view
     this.changeDetectorRef.detectChanges();
   }
 
   removeNewVideo(index: number) {
-    this.videosToAdd.splice(index, 1);
+    this.videoInfoToAdd.splice(index, 1);
   }
 
   removeExistingVideo(moduleIndex: number, videoKey: any) {
     const moduleData = this.courseData[moduleIndex];
-    // Ensure that moduleData.videos is initialized as an object
-    if (typeof moduleData.videos !== 'object' || moduleData.videos === null) {
-      moduleData.videos = {};
+    // Ensure that moduleData.videoInfo is initialized as an object
+    if (
+      typeof moduleData.videoInfo !== 'object' ||
+      moduleData.videoInfo === null
+    ) {
+      moduleData.videoInfo = {};
     }
-    // Remove the video from the module's videos object
-    delete moduleData.videos[videoKey];
+    // Remove the video from the module's videoInfo object
+    delete moduleData.videoInfo[videoKey];
   }
 
   editModule(moduledata: any, moduleId: string, cname: string, tname: string) {
     console.log(moduledata);
 
-    const modulename = moduledata.modulename;
-    const videonames = [];
-    const videolinks = [];
-    for (let i = 0; moduledata[`videoname${i}`] !== undefined; i++) {
-      videonames.push(moduledata[`videoname${i}`]);
-      videolinks.push(moduledata[`videolink${i}`]);
+    const moduleName = moduledata.moduleName;
+    const videoName = [];
+    const videoLink = [];
+    for (let i = 0; moduledata[`videoName${i}`] !== undefined; i++) {
+      videoName.push(moduledata[`videoName${i}`]);
+      videoLink.push(moduledata[`videoLink${i}`]);
     }
 
     const requestData = {
-      modulename: modulename,
-      videoname: videonames,
-      links: videolinks,
+      moduleName: moduleName,
+      videoName: videoName,
+      videoLink: videoLink,
     };
 
     // API CALL
@@ -309,9 +321,9 @@ export class AdminPortalComponent {
 
   //to convert form data according to backend input data
   newModuleData: any = {
-    modulename: '',
-    modulenumber: 0,
-    videos: [{ videoname: '', videolink: '' }],
+    moduleName: '',
+    moduleNumber: 0,
+    videoInfo: [{ videoName: '', videoLink: '' }],
   };
 
   addModule() {
@@ -320,29 +332,31 @@ export class AdminPortalComponent {
 
   createModule(newModuleData: any, cname: string, tname: string) {
     // console.log(newModuleData);
-    newModuleData.videos = newModuleData.videos || [];
-    // Filter out empty videos
-    newModuleData.videos = newModuleData.videos.filter(
+    newModuleData.videoInfo = newModuleData.videoInfo || [];
+    // Filter out empty videoInfo
+    newModuleData.videoInfo = newModuleData.videoInfo.filter(
       (video: any) =>
-        video.videoname.trim() !== '' || video.videolink.trim() !== ''
+        video.videoName.trim() !== '' || video.videoLink.trim() !== ''
     );
 
     // request data format to send to the backend
     const formattedData = {
       courseName: cname,
-      trainerName: tname,
-      modulename: newModuleData.modulename,
-      modulenumber: newModuleData.modulenumber,
-      videoname: newModuleData.videos.map((video: any) => video.videoname),
-      videolink: newModuleData.videos.map((video: any) => video.videolink),
+      courseTrainer: tname,
+      moduleName: newModuleData.moduleName,
+      moduleNumber: newModuleData.moduleNumber,
+      videoName: newModuleData.videoInfo.map((video: any) => video.videoName),
+      videoLink: newModuleData.videoInfo.map((video: any) => video.videoLink),
     };
 
     console.log(formattedData);
 
     this.http
-      .post(`${this.baseUrl}/admin/course/savevideo`, formattedData,{responseType:'text'})
+      .post(`${this.baseUrl}/admin/course/savevideo`, formattedData, {
+        responseType: 'text',
+      })
       .subscribe((result) => {
-        alert(newModuleData.modulename + ' Created Successfully!')
+        alert(newModuleData.moduleName + ' Created Successfully!');
         this.popup = true;
         this.message = 'Module Created Successfully!';
         setTimeout(() => {
@@ -354,22 +368,24 @@ export class AdminPortalComponent {
   }
 
   createAddVideo() {
-    this.newModuleData.videos.push({ videoname: '', videolink: '' });
+    this.newModuleData.videoInfo.push({ videoName: '', videoLink: '' });
     this.newCreateVideo = true;
   }
 
   removeVideo(index: number) {
-    this.newModuleData.videos.splice(index, 1);
+    this.newModuleData.videoInfo.splice(index, 1);
   }
 
   deleteModule(cname: string, moduleId: string) {
     // console.log(cname, moduleId);
     this.http
-      .delete(`${this.baseUrl}/admin/course/${cname}/${moduleId}/deletemodule`)
+      .delete(`${this.baseUrl}/admin/course/${cname}/${moduleId}/deletemodule`,{
+        responseType: 'text',
+      })
       .subscribe(
         (response) => {
           console.log(response);
-          alert(moduleId + ' Deleted Successfully!')
+          alert(moduleId + ' Deleted Successfully!');
           this.popup = true;
           this.message = 'Module Deleted Successfully!';
           setTimeout(() => {
@@ -396,14 +412,15 @@ export class AdminPortalComponent {
 
     this.http
       .post(
-        `${this.baseUrl}/admin/course/accesscoursetouser?courseUserEmail=${email.userEmail}&courseName=${cname}&trainerName=${tname}`,
-        { headers },{ responseType: 'text' }
+        `${this.baseUrl}/admin/course/accesscoursetouser?userEmail=${email.userEmail}&courseName=${cname}&courseTrainer=${tname}`,
+        { headers },
+        { responseType: 'text' }
       )
       .subscribe(
         (result) => {
           console.log(result);
-          alert(email.userEmail + ' Enrolled Successfully!')
-         window.location.reload()
+          alert(email.userEmail + ' Enrolled Successfully!');
+          window.location.reload();
         },
         (error) => {
           console.log(error);
@@ -429,7 +446,7 @@ export class AdminPortalComponent {
       .subscribe(
         (data) => {
           console.log(data);
-          alert(email + 'Removed Successfully!')
+          alert(email + 'Removed Successfully!');
           window.location.reload();
         },
         (error) => {
@@ -497,12 +514,10 @@ export class AdminPortalComponent {
     this.courseEdit = false;
   }
 
-  
-
   userFind(user: any) {
     this.find = true;
 
-    // console.log(user);
+    console.log(user);
 
     this.http
       .get(`${this.baseUrl}/admin/course/getcourseuserinfo/${user.email}`)

@@ -12,13 +12,11 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./learners-dashboard.component.css'],
 })
 export class LearnersDashboardComponent {
-
-
   constructor(
     private sanitizer: DomSanitizer,
     private route: ActivatedRoute,
     private http: HttpClient,
-    private auth:AuthService
+    private auth: AuthService
   ) {}
 
   baseUrl: any = this.auth.getBaseUrl();
@@ -38,31 +36,33 @@ export class LearnersDashboardComponent {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const courseName = params['courseName'];
-      const trainerName = params['trainerName'];
+      const courseTrainer = params['courseTrainer'];
 
       this.courseTitle = courseName;
-      this.courseTrainer = trainerName;
+      this.courseTrainer = courseTrainer;
 
       this.http
         .get(
-          `${this.baseUrl}/admin/course/${courseName}/${trainerName}/getvideos`
+          `${this.baseUrl}/admin/course/${courseName}/${courseTrainer}/getvideos`
         )
         .subscribe((data: any) => {
-          data.sort((a: any, b: any) => a.modulenum - b.modulenum);
+          console.log(data);
+          
+          data.sort((a: any, b: any) => a.moduleNumber - b.moduleNumber);
           this.courseList = data;
 
-          // Extract unique modulenum values from courseList
-          const uniqueModuleNums = [
+          // Extract unique moduleNumber values from courseList
+          const uniquemoduleNumbers = [
             ...new Set(
-              data.map((module: { modulenum: any }) => module.modulenum)
+              data.map((module: { moduleNumber: any }) => module.moduleNumber)
             ),
           ];
 
-          this.moduleLength = uniqueModuleNums.length;
+          this.moduleLength = uniquemoduleNumbers.length;
 
-          // Initialize modules with isShowTopic set to false for each modulenum
-          this.modules = uniqueModuleNums.map((modulenum) => ({
-            name: `Module ${modulenum}`,
+          // Initialize modules with isShowTopic set to false for each moduleNumber
+          this.modules = uniquemoduleNumbers.map((moduleNumber) => ({
+            name: `Module ${moduleNumber}`,
             isShowTopic: false,
           }));
         });

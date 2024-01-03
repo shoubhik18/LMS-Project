@@ -22,7 +22,7 @@
         <p
           [ngClass]="{ active: i === selectedListItem }"
           (click)="selectListItem(i)"
-          (click)="listItem(course.courseName, course.trainerName)"
+          (click)="listItem(course.courseName, course.courseTrainer)"
         >
           {{ course.courseName }}
         </p>
@@ -30,7 +30,7 @@
     </div>
 
     <div class="col-sm-4 courseEdit text mx-auto my-2" *ngIf="courseEdit">
-      <h1>Edit course </h1>
+      <h1>Edit course</h1>
       <form
         #editCourse="ngForm"
         (submit)="editExistingCourse(editCourse.value)"
@@ -62,17 +62,21 @@
         />
         <label class="mt-3">Description</label>
         <textarea
-          name="description"
-          id="description"
+          name="courseDescription"
+          id="courseDescription"
           required
           ngModel
           [(ngModel)]="description"
-          placeholder="Description"
+          placeholder="courseDescription"
           rows="12"
           class="w-100 p-2 px-3 enter"
         ></textarea>
         <label class="mt-2">Picture</label>
-        <input class="w-100 file" type="file" (change)="onFileSelected($event)" />
+        <input
+          class="w-100 file"
+          type="file"
+          (change)="onFileSelected($event)"
+        />
         <p class="mt-3 mb-0">Current Picture</p>
         <button type="submit" class="mt-3 w-100">UPDATE COURSE</button>
       </form>
@@ -112,7 +116,7 @@
           </button>
         </p>
         <p class="archive">
-          <button (click)="deleteCourse(cname,tname)">
+          <button (click)="deleteCourse(cname, tname)">
             <fa-icon class="icon pe-2" [icon]="delete"></fa-icon> Delete Course
           </button>
         </p>
@@ -140,20 +144,20 @@
               <input
                 type="text"
                 placeholder="Module Name"
-                name="modulename"
-                id="modulename"
+                name="moduleName"
+                id="moduleName"
                 required
                 ngModel
-                [(ngModel)]="newModuleData.modulename"
+                [(ngModel)]="newModuleData.moduleName"
               />
               <input
                 type="text"
                 placeholder="Module Number"
-                name="modulenumber"
-                id="modulenumber"
+                name="moduleNumber"
+                id="moduleNumber"
                 required
                 ngModel
-                [(ngModel)]="newModuleData.modulenumber"
+                [(ngModel)]="newModuleData.moduleNumber"
               />
             </div>
             <div class="video-box container">
@@ -170,26 +174,26 @@
 
               <div
                 class="row videoData"
-                *ngFor="let video of newModuleData.videos; let i = index"
+                *ngFor="let video of newModuleData.videoInfo; let i = index"
               >
                 <p class="col-sm-5">
                   <input
                     type="text"
                     placeholder="Video Name"
-                    name="videoname{{ i }}"
+                    name="videoName{{ i }}"
                     required
                     ngModel
-                    [(ngModel)]="video.videoname"
+                    [(ngModel)]="video.videoName"
                   />
                 </p>
                 <p class="col-sm-5">
                   <input
                     type="text"
                     placeholder="Video Link"
-                    name="videolink{{ i }}"
+                    name="videoLink{{ i }}"
                     required
                     ngModel
-                    [(ngModel)]="video.videolink"
+                    [(ngModel)]="video.videoLink"
                   />
                 </p>
                 <fa-icon
@@ -212,7 +216,7 @@
           <form
             #moduleForm="ngForm"
             (submit)="
-              editModule(moduleForm.value, module.modulenum, cname, tname)
+              editModule(moduleForm.value, module.moduleNumber, cname, tname)
             "
             ngNativeValidate
             #form
@@ -220,20 +224,20 @@
           >
             <div class="moduleData d-flex justify-content-between">
               <h1>
-                {{ module.modulenum }}
+                {{ module.moduleNumber }}
                 <input
                   type="text"
                   placeholder="Module Name"
-                  name="modulename"
-                  id="modulename"
+                  name="moduleName"
+                  id="moduleName"
                   required
-                  [(ngModel)]="module.modulename"
+                  [(ngModel)]="module.moduleName"
                 />
               </h1>
               <button
                 class="mod-delete"
                 type="button"
-                (click)="deleteModule(cname, module.modulenum)"
+                (click)="deleteModule(cname, module.moduleNumber)"
               >
                 Delete Module
               </button>
@@ -254,14 +258,14 @@
 
               <div
                 class="row videoData"
-                *ngFor="let video of module.videos | keyvalue; let i = index"
+                *ngFor="let video of module.videoInfo | keyvalue; let i = index"
               >
                 <p class="col-sm-5">
                   <input
                     type="text"
                     placeholder="Video Name"
-                    name="videoname{{ i }}"
-                    id="videoname{{ i }}"
+                    name="videoName{{ i }}"
+                    id="videoName{{ i }}"
                     required
                     [(ngModel)]="video.key"
                   />
@@ -270,8 +274,8 @@
                   <input
                     type="text"
                     placeholder="Video Link"
-                    name="videolink{{ i }}"
-                    id="videolink{{ i }}"
+                    name="videoLink{{ i }}"
+                    id="videoLink{{ i }}"
                     required
                     [(ngModel)]="video.value"
                   />
@@ -281,7 +285,7 @@
                   [icon]="delete"
                   (click)="removeExistingVideo(j, video.key)"
                 ></fa-icon>
-              </div> 
+              </div>
               <button type="submit" class="btn-mod my-2">Save</button>
             </div>
           </form>
@@ -290,7 +294,7 @@
         <!-- Pop ups  -->
 
         <div class="popup" *ngIf="popup">
-          <p>{{message}}</p>
+          <p>{{ message }}</p>
         </div>
         <!-- <div class="popup" *ngIf="moduleUpdated">
           <p>Module Updated succesfully!</p>
@@ -353,7 +357,7 @@
 
         <!-- display users enrolled in the course  -->
         <div *ngFor="let user of courseUsers">
-          <div *ngIf="user.courseusers && user.courseusers.length > 0">
+          <div *ngIf="user.courseUsers && user.courseUsers.length > 0">
             <div class="row pb-2">
               <div class="col-sm-3">
                 <label><strong>Username</strong></label>
@@ -365,7 +369,7 @@
                 <label><strong>Remove User</strong></label>
               </div>
             </div>
-            <div *ngFor="let courseUser of user.courseusers" class="row ps-2">
+            <div *ngFor="let courseUser of user.courseUsers" class="row ps-2">
               <div class="col-sm-3 data">
                 {{ courseUser.userName }}
               </div>
@@ -379,8 +383,8 @@
                   (click)="
                     removeUserAccess(
                       courseUser.userEmail,
-                      user.coursename,
-                      user.coursetrainer
+                      user.courseName,
+                      user.courseTrainer
                     )
                   "
                 ></fa-icon>
@@ -388,7 +392,7 @@
             </div>
           </div>
           <div
-            *ngIf="!user.courseusers || user.courseusers.length === 0"
+            *ngIf="!user.courseUsers || user.courseUsers.length === 0"
             class="row"
           >
             <div class="col-sm-12">
@@ -444,8 +448,8 @@
         />
         <label class="mt-3">Description</label>
         <textarea
-          name="description"
-          id="description"
+          name="courseDescription"
+          id="courseDescription"
           required
           ngModel
           placeholder="Description"
@@ -465,10 +469,7 @@
       <div class="import d-flex flex-column">
         <h1 class="text-center">Import Users</h1>
         <label class="mt-2" for="">Upload users file</label>
-        <a
-          class="sample"
-          >Sample-users.csv</a
-        >
+        <a class="sample">Sample-users.csv</a>
         <input type="file" name="" id="" class="mt-2 file col-sm-8" /> <br />
         <button class="btn-user">Upload</button>
       </div>
@@ -497,20 +498,21 @@
           <div class="col-sm-2 data">
             <label class="">Username</label>
             <hr />
-            {{ userInfo.username }}
+            {{ userInfo.userName }}
           </div>
           <div class="col-sm-6 data">
             <label class="">User Email</label>
             <hr />
-            {{ userInfo.useremail }}
+            {{ userInfo.userEmail }}
           </div>
           <div class="col-sm-4 data">
             <label class="">Courses Enrolled </label>
             <hr />
-            <div class="row d-flex flex-row" *ngFor="let course of userInfo.courseslist; let i = index" >
-
-              <p >{{i + 1}} - {{ course.coursename}}</p>
-              
+            <div
+              class="row d-flex flex-row"
+              *ngFor="let course of userInfo.coursesList; let i = index"
+            >
+              <p>{{ i + 1 }} - {{ course.courseName }}</p>
             </div>
             <!-- {{ userInfo.password }} -->
           </div>

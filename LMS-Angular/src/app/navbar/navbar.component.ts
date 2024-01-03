@@ -20,8 +20,7 @@ export class NavbarComponent {
   emailData: string | any = '';
 
   authority: string | any = localStorage.getItem('role');
-  // userId: string | any = localStorage.getItem('userId');
-  // email: string | any = localStorage.getItem('email');
+  
   myProfile: boolean = true;
 
   image: string | any = localStorage.getItem('image');

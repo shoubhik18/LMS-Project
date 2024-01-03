@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CourseServiceImpl implements CourseService {
 
 	@Autowired
-	private CourseUsersRepo ucr;
+	private CourseUsersRepo cur;
 
 	@Autowired
 	private CoursesRepo cr;
@@ -50,8 +50,8 @@ public class CourseServiceImpl implements CourseService {
 	@Override
 	public boolean saveCourseUser(CourseUsers courseUsers) {
 
-		if (!ucr.existsByuserEmail(courseUsers.getUserEmail())) {
-			CourseUsers save = ucr.save(courseUsers);
+		if (!cur.existsByuserEmail(courseUsers.getUserEmail())) {
+			CourseUsers save = cur.save(courseUsers);
 			if (save == null) {
 				return false;
 			} else {
@@ -66,12 +66,38 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean saveCourses(Courses course) {
+	public boolean updateCourseUser(CourseUsers courseUsers, String userEmail) {
 
-		course.setCoursecreatedate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss")));
+		if (cur.existsByuserEmail(userEmail)) {
+			CourseUsers findByuserEmail = cur.findByuserEmail(userEmail);
 
-		if (!cr.existsBycoursename(course.getCoursename())) {
-			Courses save = cr.save(course);
+			if (courseUsers != null && courseUsers.getUserEmail() != null) {
+				findByuserEmail.setUserEmail(courseUsers.getUserEmail());
+			}
+			if (courseUsers != null && courseUsers.getUserName() != null) {
+				findByuserEmail.setUserName(courseUsers.getUserName());
+			}
+			CourseUsers save = cur.save(findByuserEmail);
+			if (save == null) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+
+			throw new CustomException(CustomErrorCodes.USER_NOT_FOUND.getErrorMsg(),
+					CustomErrorCodes.USER_NOT_FOUND.getErrorCode());
+		}
+
+	}
+
+	@Override
+	public boolean saveCourses(Courses courses) {
+
+		courses.setCourseCreateDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss")));
+
+		if (!cr.existsBycourseName(courses.getCourseName())) {
+			Courses save = cr.save(courses);
 
 			if (save == null) {
 				return false;
@@ -86,39 +112,45 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean updateCourses(Courses course, String coursename, String trainerName) {
+	public boolean updateCourses(Courses courses, String courseName, String courseTrainer) {
 
-		if (cr.existsBycoursename(coursename)) {
+		if (cr.existsBycourseName(courseName)) {
 
-			Courses courses = cr.findBycoursenameAndcoursetrainer(coursename, trainerName).get(0);
-			if (course.getCoursename() != null && !course.getCoursename().isEmpty()) {
-				courses.setCoursename(course.getCoursename());
+			List<Courses> lcourses = cr.findBycourseNameAndcourseTrainer(courseName, courseTrainer);
 
-			}
-			if (course.getCoursetrainer() != null && !course.getCoursetrainer().isEmpty()) {
-				courses.setCoursetrainer(course.getCoursetrainer());
+			if (!lcourses.isEmpty()) {
+				Courses courses1 = lcourses.get(0);
+				if (courses.getCourseName() != null && !courses.getCourseName().isEmpty()) {
+					courses1.setCourseName(courses.getCourseName());
 
-			}
-			if (course.getDescription() != null && !course.getDescription().isEmpty()) {
-				courses.setDescription(course.getDescription());
+				}
+				if (courses.getCourseTrainer() != null && !courses.getCourseTrainer().isEmpty()) {
+					courses1.setCourseTrainer(courses.getCourseTrainer());
 
-			}
-			if (course.getCourseimage() != null) {
-				courses.setCourseimage(course.getCourseimage());
-			}
-			if (course.isArchived() != false) {
-				courses.setArchived(course.isArchived());
-			}
+				}
+				if (courses.getCourseDescription() != null && !courses.getCourseDescription().isEmpty()) {
+					courses1.setCourseDescription(courses.getCourseDescription());
 
-			log.info("c1 " + courses.getCoursename() + courses.getCoursetrainer() + courses.isArchived());
+				}
+				if (courses.getCourseImage() != null) {
+					courses1.setCourseImage(courses.getCourseImage());
+				}
+				if (courses.isArchived() != false) {
+					courses1.setArchived(courses.isArchived());
+				}
 
-			Courses save = cr.save(courses);
+				Courses save = cr.save(courses1);
 
-			if (save == null) {
-				return false;
+				if (save == null) {
+					return false;
+				} else {
+					return true;
+				}
 			} else {
-				return true;
+				throw new CustomException(CustomErrorCodes.INVALID_DETAILS.getErrorMsg(),
+						CustomErrorCodes.INVALID_DETAILS.getErrorMsg());
 			}
+
 		} else {
 			throw new CustomException(CustomErrorCodes.COURSE_NOT_FOUND.getErrorMsg(),
 					CustomErrorCodes.COURSE_NOT_FOUND.getErrorCode());
@@ -127,37 +159,50 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean accessCouresToUser(String courseUserEmail, String courseName, String trainerName) {
+	public boolean accessCouresToUser(String userEmail, String courseName, String courseTrainer) {
 
-		boolean userExists = ucr.existsByuserEmail(courseUserEmail);
-		boolean courseExists = cr.existsBycoursename(courseName);
+		boolean userExists = cur.existsByuserEmail(userEmail);
+		boolean courseExists = cr.existsBycourseNameAndCourseTrainer(courseName, courseTrainer);
 
 		if (userExists && courseExists) {
 
-			CourseUsers fun = ucr.findByuserEmail(courseUserEmail);
-			List<Courses> fcn = cr.findBycoursename(courseName);
+			CourseUsers fun = cur.findByuserEmail(userEmail);
+			List<Courses> fcn = cr.findBycourseNameAndcourseTrainer(courseName, courseTrainer);
 
-			Optional<Courses> courseOptional = fcn.stream()
-					.filter(course -> course.getCoursetrainer().equals(trainerName)).findFirst();
+			Courses courses = fcn.get(0);
 
-			if (!fun.getCoursesList().containsAll(fcn)) {
-				fun.getCoursesList().add(courseOptional.get());
-				ucr.save(fun);
-				return true;
+			List<CourseUsers> courseUsers = courses.getCourseUsers();
+
+			Optional<CourseUsers> findFirst = courseUsers.stream().filter(x -> x.getUserEmail().equals(userEmail))
+					.findFirst();
+
+			if (findFirst.isPresent()) {
+				throw new CustomException(CustomErrorCodes.USER_ALREADY_ENROLLED.getErrorMsg(),
+						CustomErrorCodes.USER_ALREADY_ENROLLED.getErrorCode());
 			} else {
-				return false;
+
+				if (!fun.getCoursesList().containsAll(fcn)) {
+					fun.getCoursesList().add(courses);
+					cur.save(fun);
+					return true;
+				} else {
+					return false;
+				}
+
 			}
+
 		} else {
-			return false;
+			throw new CustomException(CustomErrorCodes.INVALID_DETAILS.getErrorMsg(),
+					CustomErrorCodes.INVALID_DETAILS.getErrorCode());
 		}
 	}
 
 	@Override
 	public boolean addVideoLink(VideoUploadDto videoDto) {
 
-		LinkedHashSet<String> videolink = videoDto.getVideolink();
+		LinkedHashSet<String> videolink = videoDto.getVideoLink();
 
-		List<String> videoname = videoDto.getVideoname();
+		List<String> videoname = videoDto.getVideoName();
 		List<String> linklist = new ArrayList<>(videolink);
 
 		if (videoname.size() < videolink.size() || videoname.size() > videolink.size()) {
@@ -175,31 +220,31 @@ public class CourseServiceImpl implements CourseService {
 				linkedmap.put(name, link);
 			}
 			// find the details from db using cname, trainername
-			List<Courses> fcn = cr.findBycoursenameAndcoursetrainer(videoDto.getCourseName(),
-					videoDto.getTrainerName());
+			List<Courses> fcn = cr.findBycourseNameAndcourseTrainer(videoDto.getCourseName(),
+					videoDto.getCourseTrainer());
 
-			CourseLink cl = CourseLink.builder().links(linklist).videoname(videoDto.getVideoname()).build();
+			CourseLink cl = CourseLink.builder().videoLink(linklist).videoName(videoDto.getVideoName()).build();
 
 			List<CourseLink> cl1 = new ArrayList<>();
 			cl1.add(cl);
 
 			// converting the details into cm object
-			CourseModules cm = CourseModules.builder().modulenum(videoDto.getModulenumber())
+			CourseModules cm = CourseModules.builder().moduleNumber(videoDto.getModuleNumber())
 
-					.modulename(videoDto.getModulename())
-					.videoinserttime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy "))).clinks(cl1)
-					.build();
+					.moduleName(videoDto.getModuleName())
+					.videoInsertTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy ")))
+					.courseLinks(cl1).build();
 
 			// if fcn contains
 			if (fcn.size() > 0) {
 
 				// by using tname gettiing the course object
 				Courses courses = fcn.stream()
-						.filter(course -> course.getCoursetrainer().equals(videoDto.getTrainerName())).findFirst()
+						.filter(course -> course.getCourseTrainer().equals(videoDto.getCourseTrainer())).findFirst()
 						.get();
 
 				// getting the coursemodules from courses
-				List<CourseModules> existingModules = courses.getCoursemodule();
+				List<CourseModules> existingModules = courses.getCourseModule();
 
 				// if courses are already exist the it goes inside else outside
 				if (existingModules.size() > 0) {
@@ -207,7 +252,7 @@ public class CourseServiceImpl implements CourseService {
 					// check the modulenum from db and from client if both are same then return the
 					// coursemodule list
 					Optional<CourseModules> em = existingModules.stream()
-							.filter(module -> module.getModulenum() == videoDto.getModulenumber()).findFirst();
+							.filter(module -> module.getModuleNumber() == videoDto.getModuleNumber()).findFirst();
 
 					// add the videolink to set of link if the module if present or else add the
 					// builder to existingmocules list
@@ -216,15 +261,15 @@ public class CourseServiceImpl implements CourseService {
 
 						CourseModules cm1 = em.get();
 
-						List<CourseLink> clinks = cm1.getClinks();
+						List<CourseLink> clinks = cm1.getCourseLinks();
 
 						log.info("" + clinks);
 
 						if (clinks.size() > 0) {
 							for (CourseLink existingCl : clinks) {
 								log.info("" + existingCl);
-								existingCl.getLinks().addAll(cl.getLinks());
-								existingCl.getVideoname().addAll(cl.getVideoname());
+								existingCl.getVideoLink().addAll(cl.getVideoLink());
+								existingCl.getVideoName().addAll(cl.getVideoName());
 							}
 						} else {
 
@@ -242,7 +287,7 @@ public class CourseServiceImpl implements CourseService {
 					existingModules.add(cm);
 				}
 				// set the course object with new setcoursemodule
-				courses.setCoursemodule(existingModules);
+				courses.setCourseModule(existingModules);
 				cr.save(courses);
 
 				return true;
@@ -254,13 +299,14 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public CourseUserDto getCourseUsers(String courseUserEmail) {
+	public CourseUserDto getCourseUsers(String userEmail) {
 
 		try {
-			CourseUsers fun = ucr.findByuserEmail(courseUserEmail);
 
-			CourseUserDto ucd = CourseUserDto.builder().username(fun.getUserName()).useremail(fun.getUserEmail())
-					.courseslist(fun.getCoursesList()).build();
+			CourseUsers fun = cur.findByuserEmail(userEmail);
+
+			CourseUserDto ucd = CourseUserDto.builder().userName(fun.getUserName()).userEmail(fun.getUserEmail())
+					.coursesList(fun.getCoursesList()).build();
 
 			return ucd;
 		} catch (Exception e) {
@@ -271,15 +317,15 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public List<CourseUsersInfoDto> getCourses(String courseName, String trainerName) {
+	public List<CourseUsersInfoDto> getCourses(String courseName, String courseTrainer) {
 
 		try {
-			List<Courses> findByusername = cr.findBycoursename(courseName);
+			List<Courses> findByusername = cr.findBycourseName(courseName);
 
 			List<CourseUsersInfoDto> collect = findByusername.stream()
-					.filter(fil -> fil.getCoursetrainer().equals(trainerName))
-					.map(c -> new CourseUsersInfoDto(c.getCourseid(), c.getCoursename(), c.getCoursetrainer(),
-							c.getCoursecreatedate(), c.getCourseusers()))
+					.filter(fil -> fil.getCourseTrainer().equals(courseTrainer))
+					.map(c -> new CourseUsersInfoDto(c.getCourseId(), c.getCourseName(), c.getCourseTrainer(),
+							c.getCourseCreateDate(), c.getCourseUsers()))
 					.collect(Collectors.toList());
 			return collect;
 		} catch (Exception e) {
@@ -292,16 +338,16 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean deleterCourseUser(String email) {
+	public boolean deleterCourseUser(String userEmail) {
 
-		CourseUsers user = ucr.findByuserEmail(email);
+		CourseUsers user = cur.findByuserEmail(userEmail);
 
 		if (user != null) {
 			user.getCoursesList().clear();
 
-			ucr.save(user);
+			cur.save(user);
 
-			ucr.delete(user);
+			cur.delete(user);
 
 			return true;
 		}
@@ -313,9 +359,9 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean deleteCourse(String courseName, String trainerName) {
+	public boolean deleteCourse(String courseName, String courseTrainer) {
 
-		List<Courses> findBycoursenameAndcoursetrainer = cr.findBycoursenameAndcoursetrainer(courseName, trainerName);
+		List<Courses> findBycoursenameAndcoursetrainer = cr.findBycourseNameAndcourseTrainer(courseName, courseTrainer);
 
 		if (!findBycoursenameAndcoursetrainer.isEmpty()) {
 			Courses courses = findBycoursenameAndcoursetrainer.get(0);
@@ -330,19 +376,19 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean removeCourseAccess(String userEmail, String courseName, String trainerName) {
+	public boolean removeCourseAccess(String userEmail, String courseName, String courseTrainer) {
 
-		CourseUsers findByuserEmail = ucr.findByuserEmail(userEmail);
+		CourseUsers findByuserEmail = cur.findByuserEmail(userEmail);
 
 		if (findByuserEmail != null) {
 			List<Courses> coursesList = findByuserEmail.getCoursesList();
 
-			coursesList.removeIf(course -> course.getCoursename().equals(courseName)
-					&& course.getCoursetrainer().equals(trainerName));
+			coursesList.removeIf(course -> course.getCourseName().equals(courseName)
+					&& course.getCourseTrainer().equals(courseTrainer));
 
 			findByuserEmail.setCoursesList(coursesList);
 
-			ucr.save(findByuserEmail);
+			cur.save(findByuserEmail);
 			return true;
 		} else {
 			return false;
@@ -358,12 +404,12 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public List<CourseModules> getCourseModules(String courseName, String trainerName) {
+	public List<CourseModules> getCourseModules(String courseName, String courseTrainer) {
 
-		boolean existsBycoursename = cr.existsBycoursename(courseName);
+		boolean existsBycoursename = cr.existsBycourseName(courseName);
 
 		if (existsBycoursename) {
-			List<CourseModules> collect = cr.findCourseModulesByCourseName(courseName, trainerName);
+			List<CourseModules> collect = cr.findCourseModulesByCourseName(courseName, courseTrainer);
 
 			if (!collect.isEmpty()) {
 				return collect;
@@ -387,64 +433,78 @@ public class CourseServiceImpl implements CourseService {
 				.collect(Collectors.toList());
 
 		CourseInfoDto courseInfoDto = courseDetails.stream().findFirst()
-				.map(result -> CourseInfoDto.builder().coursename((String) result[0]).coursetrainer((String) result[1])
-						.courseimage((byte[]) result[2]).description((String) result[3]).modulenum(modulenumList)
-						.build())
+				.map(result -> CourseInfoDto.builder().courseName((String) result[0]).courseTrainer((String) result[1])
+						.courseImage((byte[]) result[2]).courseDescription((String) result[3])
+						.moduleNumber(modulenumList).build())
 				.get();
 
 		return courseInfoDto;
 	}
 
 	@Override
-	public boolean saveResume(String userEmail, MultipartFile multipart) throws Exception {
+	public boolean saveResume(String userEmail, MultipartFile resume) throws Exception {
 
-		byte[] file = multipart.getBytes();
+		byte[] file = resume.getBytes();
 
 		Resume r = Resume.builder().userEmail(userEmail).resume(file).build();
 
-		Resume resume = rr.findByUserEmail(userEmail)
-				.orElseThrow(() -> new CustomException(CustomErrorCodes.INVALID_EMAIL.getErrorMsg(),
-						CustomErrorCodes.INVALID_EMAIL.getErrorCode()));
-		if (resume == null) {
-			rr.save(r);
+		CourseUsers findByuserEmail = cur.findByuserEmail(userEmail);
+
+		if (findByuserEmail != null) {
+			List<Resume> lresume = rr.findByUserEmail(userEmail);
+
+			if (lresume.isEmpty()) {
+				rr.save(r);
+				return true;
+			} else {
+				lresume.get(0).setResume(resume.getBytes());
+				return true;
+			}
 
 		} else {
-			resume.setResume(file);
-			rr.save(resume);
+			throw new CustomException(CustomErrorCodes.INVALID_EMAIL.getErrorMsg(),
+					CustomErrorCodes.INVALID_EMAIL.getErrorCode());
+
 		}
-		return true;
+
 	}
 
 	@Override
 	public byte[] getResume(String userEmail) {
 
-		Resume resume = rr.findByUserEmail(userEmail)
-				.orElseThrow(() -> new CustomException(CustomErrorCodes.INVALID_EMAIL.getErrorMsg(),
-						CustomErrorCodes.INVALID_EMAIL.getErrorCode()));
+		List<Resume> resume = rr.findByUserEmail(userEmail);
 
-		return resume.getResume();
+		if (resume.isEmpty()) {
+			throw new CustomException(CustomErrorCodes.INVALID_EMAIL.getErrorMsg(),
+					CustomErrorCodes.INVALID_EMAIL.getErrorCode());
+
+		} else {
+			return resume.get(0).getResume();
+		}
 
 	}
 
 	@Override
 	public boolean deleteResume(String userEmail) {
 
-		Resume resume = rr.findByUserEmail(userEmail)
-				.orElseThrow(() -> new CustomException(CustomErrorCodes.INVALID_EMAIL.getErrorMsg(),
-						CustomErrorCodes.INVALID_EMAIL.getErrorCode()));
+		List<Resume> resume = rr.findByUserEmail(userEmail);
 
-		resume.setResume(null);
-		rr.save(resume);
+		if (resume.isEmpty()) {
+			throw new CustomException(CustomErrorCodes.INVALID_EMAIL.getErrorMsg(),
+					CustomErrorCodes.INVALID_EMAIL.getErrorCode());
+		} else {
+			rr.delete(resume.get(0));
+			return true;
+		}
 
-		return true;
 	}
 
 	@Override
-	public List<CourseModules> updateModule(String courseName, int modulenum, ModuleUpdateDto mud) {
+	public List<CourseModules> updateModule(String courseName, int moduleNumber, ModuleUpdateDto mud) {
 
 		LocalDateTime now = LocalDateTime.now();
 
-		Courses courses = cr.findBycoursename(courseName).get(0);
+		Courses courses = cr.findBycourseName(courseName).get(0);
 
 		if (courses == null) {
 
@@ -453,35 +513,35 @@ public class CourseServiceImpl implements CourseService {
 
 		}
 
-		List<CourseModules> ml = courses.getCoursemodule();
+		List<CourseModules> ml = courses.getCourseModule();
 
-		Optional<CourseModules> optionalCourseModules = ml.stream().filter(x -> x.getModulenum() == modulenum)
+		Optional<CourseModules> optionalCourseModules = ml.stream().filter(x -> x.getModuleNumber() == moduleNumber)
 				.findFirst();
 
 		if (optionalCourseModules.isPresent()) {
 			CourseModules courseModules = optionalCourseModules.get();
 
-			courseModules.setModulename(mud.getModulename());
-			courseModules.setModulenum(modulenum);
-			courseModules.setVideoinserttime(now.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+			courseModules.setModuleName(mud.getModuleName());
+			courseModules.setModuleNumber(moduleNumber);
+			courseModules.setVideoInsertTime(now.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
 
-			List<CourseLink> clinks = courseModules.getClinks();
+			List<CourseLink> clinks = courseModules.getCourseLinks();
 
 			if (!clinks.isEmpty()) {
 				CourseLink courseLink = clinks.get(0);
 
-				if (mud.getLinks() != null) {
-					courseLink.setLinks(mud.getLinks());
+				if (mud.getVideoLink() != null) {
+					courseLink.setVideoLink(mud.getVideoLink());
 
 				}
-				if (mud.getVideoname() != null) {
-					courseLink.setVideoname(mud.getVideoname());
+				if (mud.getVideoName() != null) {
+					courseLink.setVideoName(mud.getVideoName());
 				}
 
 			}
 
 			Courses save = cr.save(courses);
-			return save.getCoursemodule();
+			return save.getCourseModule();
 		} else {
 
 			throw new CustomException(CustomErrorCodes.MISSING_MODULE.getErrorMsg(),
@@ -490,29 +550,30 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public boolean deleteModule(String courseName, int modulenum) {
-		Courses courses = cr.findBycoursename(courseName).get(0);
+	public boolean deleteModule(String courseName, int moduleNumber) {
+		Courses courses = cr.findBycourseName(courseName).get(0);
 
-		List<CourseModules> ml = courses.getCoursemodule();
+		List<CourseModules> ml = courses.getCourseModule();
 
-		CourseModules courseModules = ml.stream().filter(x -> x.getModulenum() == modulenum).findFirst().orElse(null);
+		CourseModules courseModules = ml.stream().filter(x -> x.getModuleNumber() == moduleNumber).findFirst()
+				.orElse(null);
 
 		if (courseModules != null) {
-			List<CourseLink> clinks = courseModules.getClinks();
+			List<CourseLink> clinks = courseModules.getCourseLinks();
 
 			if (!clinks.isEmpty()) {
 				CourseLink courseLink = clinks.get(0);
 
-				courseLink.getLinks().clear();
-				courseLink.getVideoname().clear();
+				courseLink.getVideoLink().clear();
+				courseLink.getVideoName().clear();
 
-				if (courseLink.getLinks().isEmpty() && courseLink.getVideoname().isEmpty()) {
+				if (courseLink.getVideoLink().isEmpty() && courseLink.getVideoName().isEmpty()) {
 					clinks.remove(courseLink);
 				}
 			}
 
 			ml.remove(courseModules);
-			courses.setCoursemodule(ml);
+			courses.setCourseModule(ml);
 			cr.save(courses);
 
 			return true;

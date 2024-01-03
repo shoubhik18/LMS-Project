@@ -74,9 +74,9 @@ public class CourseController {
 			boolean saveUserCourse = cs.saveCourseUser(cu);
 
 			if (saveUserCourse) {
-				return new ResponseEntity<String>("CourseUsers Saved", HttpStatus.CREATED);
+				return new ResponseEntity<String>("CourseUsers Added Successful", HttpStatus.CREATED);
 			} else {
-				return new ResponseEntity<String>("Unable To Save CourseUsers", HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<String>("CourseUsers Added UnSuccessful", HttpStatus.BAD_REQUEST);
 			}
 		} else {
 			throw new CustomException(CustomErrorCodes.USER_NOT_FOUND.getErrorMsg(),
@@ -91,23 +91,24 @@ public class CourseController {
 	 * 
 	 */
 	@PostMapping("/addcourse")
-	public ResponseEntity<String> addCourse(@ModelAttribute @Valid CourseDto acd) throws Exception {
+	public ResponseEntity<String> addCourse(@ModelAttribute @Valid CourseDto courseDto) throws Exception {
 
 		Courses cc;
-		if (acd.getCourseImage() != null && acd.getCourseImage().getBytes() != null) {
-			cc = Courses.builder().coursename(acd.getCourseName()).coursetrainer(acd.getCourseTrainer())
-					.courseimage(acd.getCourseImage().getBytes()).description(acd.getDescription()).build();
+		if (courseDto.getCourseImage() != null && courseDto.getCourseImage().getBytes() != null) {
+			cc = Courses.builder().courseName(courseDto.getCourseName()).courseTrainer(courseDto.getCourseTrainer())
+					.courseImage(courseDto.getCourseImage().getBytes())
+					.courseDescription(courseDto.getCourseDescription()).build();
 		} else {
-			cc = Courses.builder().coursename(acd.getCourseName()).coursetrainer(acd.getCourseTrainer())
-					.description(acd.getDescription()).build();
+			cc = Courses.builder().courseName(courseDto.getCourseName()).courseTrainer(courseDto.getCourseTrainer())
+					.courseDescription(courseDto.getCourseDescription()).build();
 		}
 
 		boolean saveUserCourse = cs.saveCourses(cc);
 
 		if (saveUserCourse) {
-			return new ResponseEntity<String>("Courses Saved", HttpStatus.CREATED);
+			return new ResponseEntity<String>("Courses Added Successful", HttpStatus.CREATED);
 		} else {
-			return new ResponseEntity<String>("Unable To Save Courses", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Courses Added UnSuccessful", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -117,29 +118,33 @@ public class CourseController {
 	 * 
 	 */
 
-	@PutMapping("/updatecourse/{coursename}/{trainerName}")
-	public ResponseEntity<String> updateCourse(@ModelAttribute CourseUpdateDto cud,
-			@PathVariable("coursename") String courseName, @PathVariable String trainerName) throws Exception {
+	@PutMapping("/updatecourse/{coursename}/{courseTrainer}")
+	public ResponseEntity<String> updateCourse(@ModelAttribute CourseUpdateDto courseUpdatedto,
+			@PathVariable("coursename") String courseName, @PathVariable String courseTrainer) throws Exception {
 
 		Courses cc;
-		if (cud.getCourseImage() != null && cud.getCourseImage().getBytes() != null) {
+		if (courseUpdatedto.getCourseImage() != null && courseUpdatedto.getCourseImage().getBytes() != null) {
 
-			cc = Courses.builder().coursename(cud.getCourseName()).coursetrainer(cud.getCourseTrainer())
-					.courseimage(cud.getCourseImage().getBytes()).description(cud.getDescription())
-					.archived(cud.isArchived()).build();
+			cc = Courses.builder().courseName(courseUpdatedto.getCourseName())
+					.courseTrainer(courseUpdatedto.getCourseTrainer())
+					.courseImage(courseUpdatedto.getCourseImage().getBytes())
+					.courseDescription(courseUpdatedto.getCourseDescription()).archived(courseUpdatedto.isArchived())
+					.build();
 		} else {
 
-			cc = Courses.builder().coursename(cud.getCourseName()).coursetrainer(cud.getCourseTrainer())
-					.description(cud.getDescription()).archived(cud.isArchived()).build();
+			cc = Courses.builder().courseName(courseUpdatedto.getCourseName())
+					.courseTrainer(courseUpdatedto.getCourseTrainer())
+					.courseDescription(courseUpdatedto.getCourseDescription()).archived(courseUpdatedto.isArchived())
+					.build();
 
 		}
 
-		boolean saveUserCourse = cs.updateCourses(cc, courseName, trainerName);
+		boolean saveUserCourse = cs.updateCourses(cc, courseName, courseTrainer);
 
 		if (saveUserCourse) {
-			return new ResponseEntity<String>("Courses Saved", HttpStatus.CREATED);
+			return new ResponseEntity<String>("Courses Updation Successful", HttpStatus.CREATED);
 		} else {
-			return new ResponseEntity<String>("Unable To Save Courses", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Courses Updation UnSuccessful", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -150,14 +155,14 @@ public class CourseController {
 	 */
 
 	@PostMapping("/accesscoursetouser")
-	public ResponseEntity<String> accessCouresToUser(@RequestParam String courseUserEmail,
-			@RequestParam String courseName, @RequestParam String trainerName) {
-		boolean accessTocoures = cs.accessCouresToUser(courseUserEmail, courseName, trainerName);
+	public ResponseEntity<String> accessCouresToUser(@RequestParam String userEmail, @RequestParam String courseName,
+			@RequestParam String courseTrainer) {
+		boolean accessTocoures = cs.accessCouresToUser(userEmail, courseName, courseTrainer);
 
 		if (accessTocoures) {
-			return new ResponseEntity<String>("Course Added To User", HttpStatus.OK);
+			return new ResponseEntity<String>("Course Access Successful", HttpStatus.OK);
 		} else {
-			return new ResponseEntity<String>("Course Unable To Add User", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Course Access UnSuccessful", HttpStatus.BAD_REQUEST);
 		}
 
 	}
@@ -173,9 +178,9 @@ public class CourseController {
 		boolean addVideoLink = cs.addVideoLink(videoDto);
 
 		if (addVideoLink) {
-			return new ResponseEntity<>("saved", HttpStatus.OK);
+			return new ResponseEntity<>("Video Uploading Successful", HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>("Video Not Saved", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("Video Uploading UnSuccessful", HttpStatus.BAD_REQUEST);
 		}
 
 	}
@@ -206,11 +211,11 @@ public class CourseController {
 	 * 
 	 */
 
-	@GetMapping("/getcourseusers/{courseName}/{trainerName}")
+	@GetMapping("/getcourseusers/{courseName}/{courseTrainer}")
 	public ResponseEntity<List<CourseUsersInfoDto>> getCourses(@PathVariable("courseName") String courseName,
-			@PathVariable("trainerName") String trainerName) {
+			@PathVariable("courseTrainer") String courseTrainer) {
 
-		List<CourseUsersInfoDto> uc = cs.getCourses(courseName, trainerName);
+		List<CourseUsersInfoDto> uc = cs.getCourses(courseName, courseTrainer);
 
 		if (uc.size() == 0) {
 			throw new CustomException(CustomErrorCodes.INVALID_DETAILS.getErrorMsg(),
@@ -227,14 +232,14 @@ public class CourseController {
 	 * 
 	 */
 
-	@DeleteMapping("/deletecourse/{courseName}/{trainerName}")
+	@DeleteMapping("/deletecourse/{courseName}/{courseTrainer}")
 	public ResponseEntity<String> deleteCourse(@PathVariable("courseName") String courseName,
-			@PathVariable("trainerName") String trainerName) {
+			@PathVariable("courseTrainer") String courseTrainer) {
 
-		if (cs.deleteCourse(courseName, trainerName)) {
-			return new ResponseEntity<String>("Course Deleted", HttpStatus.OK);
+		if (cs.deleteCourse(courseName, courseTrainer)) {
+			return new ResponseEntity<String>("Course Deletion Successful", HttpStatus.OK);
 		} else {
-			return new ResponseEntity<String>("UnAble To  Course Deleted", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Course Deletion UnSuccessful", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -244,25 +249,25 @@ public class CourseController {
 	 * 
 	 */
 
-	@GetMapping("/{courseName}/{trainerName}/getvideos")
+	@GetMapping("/{courseName}/{courseTrainer}/getvideos")
 	public ResponseEntity<List<CoursesModuleInfoDto>> getVideos(@PathVariable("courseName") String courseName,
-			@PathVariable("trainerName") String trainerName) {
+			@PathVariable("courseTrainer") String courseTrainer) {
 
-		List<CourseModules> getcourse = cs.getCourseModules(courseName, trainerName);
+		List<CourseModules> getcourse = cs.getCourseModules(courseName, courseTrainer);
 
-		List<Integer> mn = getcourse.stream().map(x -> x.getModulenum()).collect(Collectors.toList());
+		List<Integer> mn = getcourse.stream().map(x -> x.getModuleNumber()).collect(Collectors.toList());
 
-		List<String> mname = getcourse.stream().map(x -> x.getModulename()).collect(Collectors.toList());
+		List<String> mname = getcourse.stream().map(x -> x.getModuleName()).collect(Collectors.toList());
 
-		List<List<CourseLink>> collect = getcourse.stream().map(x -> x.getClinks()).collect(Collectors.toList());
+		List<List<CourseLink>> collect = getcourse.stream().map(x -> x.getCourseLinks()).collect(Collectors.toList());
 
 		List<List<CourseLink>> findFirst = collect.stream().toList();
 
-		List<List<String>> listoflinks = findFirst.stream().flatMap(clinks -> clinks.stream().map(CourseLink::getLinks))
-				.collect(Collectors.toList());
+		List<List<String>> listoflinks = findFirst.stream()
+				.flatMap(clinks -> clinks.stream().map(CourseLink::getVideoLink)).collect(Collectors.toList());
 
 		List<List<String>> listofvideonames = findFirst.stream()
-				.flatMap(clinks -> clinks.stream().map(CourseLink::getVideoname)).collect(Collectors.toList());
+				.flatMap(clinks -> clinks.stream().map(CourseLink::getVideoName)).collect(Collectors.toList());
 
 		List<Map<String, String>> resultMapList = new ArrayList<>();
 
@@ -282,7 +287,7 @@ public class CourseController {
 
 		List<CoursesModuleInfoDtoBuilder> combinedList = IntStream
 				.range(0, Math.min(mn.size(), resultMapList.size())).mapToObj(i -> CoursesModuleInfoDto.builder()
-						.modulenum(mn.get(i)).modulename(mname.get(i)).videos(resultMapList.get(i)))
+						.moduleNumber(mn.get(i)).moduleName(mname.get(i)).videoInfo(resultMapList.get(i)))
 				.collect(Collectors.toList());
 
 		List<CoursesModuleInfoDto> list = combinedList.stream().map(CoursesModuleInfoDtoBuilder::build)
@@ -330,11 +335,11 @@ public class CourseController {
 	 * 
 	 */
 
-	@GetMapping("/{courseName}/{trainerName}/getmodules")
+	@GetMapping("/{courseName}/{courseTrainer}/getmodules")
 	public ResponseEntity<List<CourseModules>> getModules(@PathVariable("courseName") String courseName,
-			@PathVariable String trainerName) {
+			@PathVariable String courseTrainer) {
 
-		List<CourseModules> courseModules = cs.getCourseModules(courseName, trainerName);
+		List<CourseModules> courseModules = cs.getCourseModules(courseName, courseTrainer);
 
 		if (courseModules.size() > 0) {
 			return new ResponseEntity<List<CourseModules>>(courseModules, HttpStatus.OK);
@@ -351,12 +356,12 @@ public class CourseController {
 
 	@PutMapping("/{courseName}/{moduleId}/updatemodules")
 	public ResponseEntity<List<CourseModules>> updateModules(@RequestBody @Valid ModuleUpdateDto mud,
-			@PathVariable("courseName") String courseName, @PathVariable("moduleId") int modulenum) {
+			@PathVariable("courseName") String courseName, @PathVariable("moduleId") int moduleNumber) {
 
 		HttpHeaders hd = new HttpHeaders();
 		hd.setContentType(MediaType.APPLICATION_JSON);
 
-		List<CourseModules> updateModule = cs.updateModule(courseName, modulenum, mud);
+		List<CourseModules> updateModule = cs.updateModule(courseName, moduleNumber, mud);
 
 		return new ResponseEntity<List<CourseModules>>(updateModule, HttpStatus.OK);
 	}
@@ -368,8 +373,8 @@ public class CourseController {
 	 */
 	@DeleteMapping("/{courseName}/{moduleId}/deletemodule")
 	public ResponseEntity<String> deleteModule(@PathVariable("courseName") String courseName,
-			@PathVariable("moduleId") int modulenum) {
-		boolean deleteModule = cs.deleteModule(courseName, modulenum);
+			@PathVariable("moduleId") int moduleNumber) {
+		boolean deleteModule = cs.deleteModule(courseName, moduleNumber);
 
 		if (deleteModule) {
 			return new ResponseEntity<String>("Module Deletion Successful", HttpStatus.OK);
