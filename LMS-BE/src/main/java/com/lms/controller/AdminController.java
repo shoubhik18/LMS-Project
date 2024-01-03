@@ -62,7 +62,7 @@ public class AdminController {
 	 */
 
 	@PostMapping("/signup")
-	@PreAuthorize("hasAuthority('superadmin')")
+	@PreAuthorize("hasAuthority('admin')")
 	public ResponseEntity<User> signUp(@RequestBody @Valid User user) {
 
 		User saveLU = as.saveUser(user);
