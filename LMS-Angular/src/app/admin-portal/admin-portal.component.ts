@@ -441,7 +441,7 @@ export class AdminPortalComponent {
       .patch(
         `${this.baseUrl}/admin/removecourseaccess/${email}/${cname}/${tname}`,
         {},
-        { headers }
+        { headers,responseType:'text' }
       )
       .subscribe(
         (data) => {
