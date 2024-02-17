@@ -45,12 +45,16 @@ export class NavbarComponent {
     }
   }
 
+  dashboard() {
+    this.router.navigate(['dashboard']);
+  }
+
   admin() {
     this.router.navigate(['admin']);
   }
 
-  dashboard() {
-    this.router.navigate(['dashboard']);
+  buyCourse(){
+    this.router.navigate(['razorpay']);
   }
 
   profile() {

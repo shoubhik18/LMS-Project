@@ -1,0 +1,22 @@
+<app-navbar></app-navbar>
+<div class="container my-5 ">
+  <div class="row">
+    <div class="col-sm-7 d-flex"><h3>Course Name</h3>
+      <input
+      #searched
+      class="search"
+      type="text"
+      placeholder="Search Courses"
+      (input)="search(searched.value)"
+    />
+    </div>
+    <div class="col-sm-2 text-center"><h3>Course Price</h3></div>
+    <div class="col-sm-2 text-center"><h3>Checkout</h3></div>
+  </div>
+  <hr>
+  <div class="row my-2" *ngFor="let course of searchItems">
+    <div class="col-sm-7"> <h5>{{course.courseName}}</h5>   </div>
+    <div class="col-sm-2 text-center"><p>₹ {{course.price}}</p></div>
+    <div class="col-sm-2 text-center"><button (click)="payNow(course)" class="buy">Purchase</button></div>
+  </div>
+</div>

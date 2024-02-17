@@ -112,6 +112,12 @@
 			<artifactId>modelmapper</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+<!--Razorpay dependency-->
+		<dependency>
+			<groupId>com.razorpay</groupId>
+			<artifactId>razorpay-java</artifactId>
+			<version>1.4.2</version>
+		</dependency>
 
 	</dependencies>
 

@@ -16,6 +16,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { EmailService } from './service-floder/email.service';
 import { MyProfileComponent } from './my-profile/my-profile.component';
 import { LearnersDashboardComponent } from './learners-dashboard/learners-dashboard.component';
+import { RazorpayComponent } from './razorpay/razorpay.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { LearnersDashboardComponent } from './learners-dashboard/learners-dashbo
     AdminPortalComponent,
     MyProfileComponent,
     LearnersDashboardComponent,
+    RazorpayComponent,
 
   ],
   imports: [

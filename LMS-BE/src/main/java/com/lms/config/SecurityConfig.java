@@ -69,6 +69,8 @@ public class SecurityConfig {
 
 					auth.requestMatchers("/auth/login").permitAll();
 
+					auth.requestMatchers("/ct/{amount}","successtrans").permitAll();
+
 					auth.requestMatchers("/user/connect", "/user/uploadimage/{userEmail}",
 							"/user/downloadimage/{userEmail}", "/user/update/{userEmail}", "/user/getotp/{userEmail}",
 							"/user/verifyotp", "/user/resetpassword", "/user/{userEmail}/uploadresume",

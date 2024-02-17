@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminPortalComponent } from './admin-portal/admin-portal.component';
 import { MyProfileComponent } from './my-profile/my-profile.component';
 import { LearnersDashboardComponent } from './learners-dashboard/learners-dashboard.component';
+import { RazorpayComponent } from './razorpay/razorpay.component';
 // import { authGuard } from './auth.guard';
 
 const routes: Routes = [
@@ -45,6 +46,11 @@ const routes: Routes = [
   {
     path: 'learners',
     component: LearnersDashboardComponent,
+    // canActivate: [authGuard],
+  },
+  {
+    path: 'razorpay',
+    component: RazorpayComponent,
     // canActivate: [authGuard],
   },
 ];

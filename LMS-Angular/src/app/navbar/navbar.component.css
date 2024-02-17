@@ -17,6 +17,12 @@
   display: flex;
   align-items: center;
 }
+.allCourses{
+  color: #570df8;
+  text-decoration: underline;
+  margin-left: 30px;
+  /* margin-right: 30px; */
+}
 
 .profile {
   color: white;
